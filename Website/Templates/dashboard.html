@@ -1,11 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-</head>
-<body>
-    <h1>HELLO, YOU ARE LOGGED IN!</h1>
-    <a href="{{url_for('main.logout')}}">Press here to log out.</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Dashboard</h2>
+    
+    <!-- Log Exercise Form -->
+    <div class="card p-4 shadow-sm">
+        <h4>Log Your Exercise</h4>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.exercise.label }} {{ form.exercise(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.sets.label }} {{ form.sets(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.reps.label }} {{ form.reps(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.weight.label }} {{ form.weight(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.rpe.label }} {{ form.rpe(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Log Exercise</button>
+        </form>
+    </div>
+
+    <!-- Exercise Logs -->
+    <div class="mt-4">
+        <h4>Previous Logs</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                    <th>Weight</th>
+                    <th>RPE</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.exercise }}</td>
+                    <td>{{ log.sets }}</td>
+                    <td>{{ log.reps }}</td>
+                    <td>{{ log.weight }}</td>
+                    <td>{{ log.rpe if log.rpe else '-' }}</td>
+                    <td>{{ log.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
