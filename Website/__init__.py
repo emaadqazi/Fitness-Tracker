@@ -1,6 +1,6 @@
 # This file will be used to initialize the Flask App
 
-from flask import Flask 
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
@@ -8,7 +8,6 @@ from flask_migrate import Migrate
 import os
  
 db = SQLAlchemy() #Initialize the db, do not assign yet 
-
 bcrypt = Bcrypt() #Initialize without passing app yet
 
 def create_app():
@@ -16,6 +15,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(app.instance_path, 'fitness_tracker.db')}" #Flask knows we are storing fitness_tracker.db in /instance
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
     app.config['SECRET_KEY'] = 'secretkey' #Key for Flask sessions
+    app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(app.instance_path, 'uploads')
     
     migrate = Migrate(app, db)
     db.init_app(app) # Connect database to the app
@@ -28,7 +28,7 @@ def create_app():
         
     login_manager = LoginManager()
     login_manager.init_app(app)
-    login_manager.login_view = "login"
+    login_manager.login_view = "main.login"
     
     @login_manager.user_loader
     def load_user(user_id):

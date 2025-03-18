@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, FileField
+from flask_wtf.file import FileAllowed #For the PhotoUploading feature
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Regexp, StopValidation, DataRequired
 from flask import current_app, flash # To avoid circular imports
 from . import db, bcrypt
@@ -44,3 +45,7 @@ class WorkoutLog(FlaskForm):
 class WeightLogForm(FlaskForm):
     weight = FloatField('Weight (lbs)', validators=[DataRequired()])
     submit = SubmitField('Log Weight')
+    
+class PhotoUploadForm(FlaskForm):
+    photo = FileField('Upload Photo', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images Only!'), DataRequired()])
+    submit = SubmitField('Upload')

@@ -1,10 +1,12 @@
 # Routes for the application; the app.py file
 
-from flask import render_template, Blueprint, redirect, url_for, flash, request, session
-from .models import User, ExerciseLog, WeightLog
-from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm
+from flask import render_template, Blueprint, redirect, url_for, flash, request, session, current_app, send_from_directory
+from .models import User, ExerciseLog, WeightLog, Photo
+from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm
 from . import db, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
+import os 
+from werkzeug.utils import secure_filename
 
 main = Blueprint("main", __name__) # Create blueprint for main routes; we can access app
 
@@ -113,7 +115,59 @@ def weightlog():
 @main.route('/progressphotos', methods=['GET', 'POST'])
 @login_required
 def progressphotos():
-    return render_template('progress_photos.html')
+    form = PhotoUploadForm()
+    
+    if form.validate_on_submit():
+        photo = form.photo.data # Getting the photo data from the form
+        filename = secure_filename(photo.filename) # Generate a secure filename
+        
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', f'user_{current_user.id}') # Defining the upload folder
+        
+        if not os.path.exists(upload_folder): # If folder does not exist, create it
+            os.makedirs(upload_folder)
+        
+        photo_path = os.path.join(upload_folder, filename)
+        photo.save(photo_path)
+        
+        # Create a new photo record and assign it to the current user 
+        new_photo = Photo(user_id=current_user.id, filename=filename)
+        db.session.add(new_photo)
+        db.session.commit()
+        
+        flash('Photo uploaded successfully!', 'success')
+        return redirect(url_for('main.progressphotos'))
+    
+    photos_list = Photo.query.filter_by(user_id=current_user.id).all()
+    return render_template('progress_photos.html', form=form, photos=photos_list)
+
+@main.route('/delete_photo/<int:photo_id>', methods=['POST'])
+@login_required
+def delete_photo(photo_id):
+    photo = Photo.query.get_or_404(photo_id) # Need to find the photo from the database
+    
+    if photo.user_id != current_user.id:
+        flash('You do not have permission to delete this photo.', 'danger')
+        return redirect(url_for('main.progressphotos'))
+    
+    try:
+        photo_path = os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], photo.filename)
+        if os.path.exists(photo_path):
+            os.remove(photo_path)
+            flash('Photo deleted successfully', 'success')
+        else:
+            flash('Photo not found!', 'danger')
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'danger')
+        
+    db.session.delete(photo)  # Delete from database
+    db.session.commit()
+    
+    return redirect(url_for('main.progressphotos'))
+
+@main.route('/uploaded_photo/<filename>')
+def uploaded_photo(filename):
+    # Serve the photo from the UPLOADED_PHOTOS_DEST folder (static/uploads)
+    return send_from_directory(current_app.config['UPLOADED_PHOTOS_DEST'], filename)
 
 @main.route('/notes', methods=['GET', 'POST'])
 @login_required
