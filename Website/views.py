@@ -1,8 +1,8 @@
 # Routes for the application; the app.py file
 
 from flask import render_template, Blueprint, redirect, url_for, flash, request, session
-from .models import User, ExerciseLog
-from .forms import LoginForm, RegisterForm, WorkoutLog
+from .models import User, ExerciseLog, WeightLog
+from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm
 from . import db, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
 
@@ -92,3 +92,40 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('main.login'))
+
+@main.route('/weightlog', methods=['GET', 'POST'])
+@login_required
+def weightlog():
+    form = WeightLogForm()
+    
+    if form.validate_on_submit():
+        new_weight_log = WeightLog(user_id=current_user.id, weight=form.weight.data)
+        db.session.add(new_weight_log)
+        db.session.commit()
+        flash("Weight logged successfully!", "success")
+        return redirect(url_for('main.weightlog'))
+    
+    # Filters WeightLog table and retrieves records where user_id matches current_user.id
+    # .all() finds ALL entries associated with x user; logs will reflect these in the .html page
+    logs = WeightLog.query.filter_by(user_id=current_user.id).all()
+    return render_template('weight_log.html', form=form, logs=logs)
+
+@main.route('/progressphotos', methods=['GET', 'POST'])
+@login_required
+def progressphotos():
+    return render_template('progress_photos.html')
+
+@main.route('/notes', methods=['GET', 'POST'])
+@login_required
+def notes():
+    return render_template('notes.html')
+
+@main.route('/challenges', methods=['GET', 'POST'])
+@login_required
+def challenges():
+    return render_template('challenges.html')
+
+@main.route('/analytics', methods=['GET', 'POST'])
+@login_required
+def analytics():
+    return render_template('analytics.html')

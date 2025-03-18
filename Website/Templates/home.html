@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Fitness Tracker</title>
-</head>
-<body>
-    <h1>Welcome to the Fitness Tracker!</h1>
-    <a href="{{url_for('main.login')}}">Login Page</a><br>
-    <a href="{{url_for('main.register')}}">Register</a><br>
-</body>
+{% extends "base.html" %}
 
-</html>
+{% block title %}Home - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-4">Welcome to the Fitness Tracker!</h1>
+    <p class="lead">Track your workouts and progress easily.</p>
+
+    <div class="mt-4">
+        <a href="{{ url_for('main.login') }}" class="btn btn-primary btn-lg">Login</a>
+        <a href="{{ url_for('main.register') }}" class="btn btn-success btn-lg">Register</a>
+    </div>
+</div>
+{% endblock %}

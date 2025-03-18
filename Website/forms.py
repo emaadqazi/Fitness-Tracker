@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField
-from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Regexp, StopValidation
+from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Regexp, StopValidation, DataRequired
 from flask import current_app, flash # To avoid circular imports
 from . import db, bcrypt
 from .models import User
@@ -40,3 +40,7 @@ class WorkoutLog(FlaskForm):
     weight = FloatField('Weight (lbs): ', validators=[InputRequired()]) #Need to implement toggle feature between lbs/kg
     rpe = IntegerField('RPE', validators=[InputRequired()])
     submit = SubmitField('Log Exercise')
+    
+class WeightLogForm(FlaskForm):
+    weight = FloatField('Weight (lbs)', validators=[DataRequired()])
+    submit = SubmitField('Log Weight')

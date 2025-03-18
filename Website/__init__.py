@@ -21,7 +21,7 @@ def create_app():
     db.init_app(app) # Connect database to the app
     bcrypt.init_app(app) # Passsing app to bcrypt
     
-    from .models import User, ExerciseLog # Import the models
+    from .models import User, ExerciseLog, WeightLog # Import the models
     
     with app.app_context():
         db.create_all() #Creates a database table for our data models
