@@ -7,18 +7,29 @@ class User(db.Model, UserMixin): #Table for db
     id = db.Column(db.Integer, primary_key=True) #Identity for user
     username = db.Column(db.String(20), nullable=False, unique=True) #Username, 20 character limit, cannot be empty 
     password = db.Column(db.String(80), nullable=False) #Password, 80 character limit, cannot be empty
+    sessions = db.relationship('Session', backref='user', lazy=True)
     weight_logs = db.relationship('WeightLog', back_populates="user", lazy=True) # Establishing a connection with WeightLogs so instances of User are accurate with the inputted data 
+
+class Session(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.DateTime, default=datetime.today)
+    feeling_before = db.Column(db.Integer) # Scale 1-10
+    feeling_after = db.Column(db.Integer) # Scale 1-10
+    notes = db.Column(db.Text, nullable=True)
+    exercises = db.relationship('ExerciseLog', backref='session', lazy=True)
 
 class ExerciseLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_id = db.Column(db.Integer, db.ForeignKey('session.id'), nullable=False)
     exercise = db.Column(db.String(50), nullable=False)
     sets = db.Column(db.Integer, nullable=False)
     reps = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Float, nullable=False)
     rpe = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, default=datetime.today)
-    db.relationship('User', backref='logs', lazy=True) #Defines a One-to-Many relationship between Exercise and User
+    # db.relationship('User', backref='logs', lazy=True) #Defines a One-to-Many relationship between Exercise and User
     
 class WeightLog(db.Model):
     id = db.Column(db.Integer, primary_key=True) # To identify users
@@ -40,3 +51,13 @@ class Photo(db.Model):
     
     def __repr__(self): # So we can see the photo 
         return f"<Photo {self.filename}>"
+    
+class ExerciseMedia(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    exercise_id = db.Column(db.Integer, db.ForeignKey('exercise_log.id'), nullable=False)
+    filename = db.Column(db.String(100), nullable=False)
+    media_type = db.Column(db.String(10), nullable=False)
+    notes = db.Column(db.Text)
+    upload_date = db.Column(db.DateTime, default=datetime.today)
+    # Establish a relationship
+    exercise = db.relationship('ExerciseLog', backref='media')

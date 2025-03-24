@@ -49,3 +49,18 @@ class WeightLogForm(FlaskForm):
 class PhotoUploadForm(FlaskForm):
     photo = FileField('Upload Photo', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images Only!'), DataRequired()])
     submit = SubmitField('Upload')
+    
+class SessionForm(FlaskForm):
+    title = StringField('Session Title', validators=[DataRequired()])
+    feeling_before = IntegerField("How did you feel before (1-10)?", validators=[DataRequired()])
+    feeling_after = IntegerField('How did you feel after (1-10)?', validators=[])
+    notes = StringField('Session Notes')
+    submit = SubmitField('Create Session')
+
+class ExerciseMediaForm(FlaskForm):
+    media = FileField('Upload Photo/Video', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg', 'mp4', 'mov'], 'Images and Videos Only!'), 
+        DataRequired()
+    ])
+    notes = StringField('Notes')
+    submit = SubmitField('Upload')

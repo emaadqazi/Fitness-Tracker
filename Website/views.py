@@ -1,11 +1,11 @@
 # Routes for the application; the app.py file
 
 from flask import render_template, Blueprint, redirect, url_for, flash, request, session, current_app, send_from_directory
-from .models import User, ExerciseLog, WeightLog, Photo
-from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm
+from .models import User, ExerciseLog, WeightLog, Photo, Session, ExerciseMedia
+from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm, SessionForm, ExerciseMediaForm
 from . import db, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
-import os 
+import os, time
 from werkzeug.utils import secure_filename
 
 main = Blueprint("main", __name__) # Create blueprint for main routes; we can access app
@@ -72,22 +72,164 @@ def register():
 @main.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    form = WorkoutLog()
+    form = SessionForm()
     
     if form.validate_on_submit():
-        new_log = ExerciseLog(user_id=current_user.id, 
-                              exercise=form.exercise.data,
-                              sets=form.sets.data,
-                              reps=form.reps.data,
-                              weight=form.weight.data,
-                              rpe=form.rpe.data if form.rpe.data else None)
-        db.session.add(new_log)
+        new_session = Session(
+            title=form.title.data,
+            feeling_before=form.feeling_before.data,
+            notes=form.notes.data,
+            user_id=current_user.id
+        )
+        db.session.add(new_session)
+        db.session.commit()
+        flash('New session created', 'success')
+        return(redirect(url_for('main.dashboard')))
+    
+    sessions = Session.query.filter_by(user_id=current_user.id,).order_by(Session.date.desc()).all()
+    return render_template('dashboard.html', sessions=sessions, form=form)
+
+@main.route('/session_details/<int:session_id>', methods=['GET', 'POST'])
+@login_required
+def session_details(session_id):
+    session = Session.query.get_or_404(session_id)
+    
+    if session.user_id != current_user.id:
+        flash("You do not have permission to view this session.", "danger")
+        return redirect(url_for('main.dashboard'))
+    
+    form = WorkoutLog()
+    if form.validate_on_submit():
+        new_exercise = ExerciseLog(
+            session_id=session_id, 
+            exercise=form.exercise.data,
+            sets=form.sets.data,
+            reps=form.reps.data,
+            weight=form.weight.data,
+            rpe=form.rpe.data if form.rpe.data else None)
+        db.session.add(new_exercise)
         db.session.commit()
         flash("Exercise logged successfully!", "success")
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('main.session_details', session_id=session_id))
+    
+    exercises = ExerciseLog.query.filter_by(session_id=session_id).all()
+    return render_template('session_details.html', form=form, session=session, exercises=exercises)
         
-    logs = ExerciseLog.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard.html', form=form, logs=logs)
+@main.route('/update_feeling_after/<int:session_id>', methods=['POST'])
+@login_required
+def update_feeling_after(session_id):
+    session = Session.query.get_or_404(session_id)
+    
+    if session.user_id != current_user.id:
+        flash("You do not have permission to update this session.", "danger")
+        return redirect(url_for('main.dashboard'))
+    
+    feeling_after = request.form.get('feeling_after')
+    if feeling_after and feeling_after.isdigit():
+        feeling_after = int(feeling_after)
+        if 1 <= feeling_after <= 10:
+            session.feeling_after = feeling_after 
+            db.session.commit()
+            flash("Post-workout feeling updated successfully!", "success")
+        else:
+            flash("Feeling rating must be between 1 and 10.", "danger")
+            
+    return redirect(url_for('main.session_details', session_id=session_id))
+
+@main.route('/delete_exercise/<int:exercise_id>/<int:session_id>', methods=['POST'])
+@login_required
+def delete_exercise(exercise_id, session_id):
+    exercise = ExerciseLog.query.get_or_404(exercise_id)
+    session = Session.query.get_or_404(session_id)
+    
+    if session.user_id != current_user.id:
+        flash("You do not have permission to modify this session.", "danger")
+        return redirect(url_for('main.dashboard'))
+    
+    if exercise.session_id != session_id:
+        flash("Invalid request", "danger")
+        return redirect(url_for('main.session_details', session_id=session_id))
+    
+    db.session.delete(exercise)
+    db.session.commit()
+    
+    flash("Exercise deleted successfully!", "success")
+    return redirect(url_for('main.session_details', session_id=session_id))
+
+@main.route('/exercise_details/<exercise_id>', methods=['GET', 'POST'])
+@login_required
+def exercise_details(exercise_id):
+    exercise = ExerciseLog.query.get_or_404(exercise_id)
+    session = Session.query.get_or_404(exercise.session_id)
+    
+    if session.user_id != current_user.id:
+        flash("You do not have permission to view this exercise.", "danger")
+        return redirect(url_for('main.dashboard'))
+    
+    form = ExerciseMediaForm()
+    if form.validate_on_submit():
+        media = form.media.data 
+        filename = secure_filename(f"{exercise_id}_{int(time.time())}_{media.filename}")
+        
+        # Determine the media type 
+        media_type = 'photo' if media.filename.lower().endswith(('jpg', 'jpeg', 'png')) else 'video'
+        
+        # Create upload_folder if it does not exist
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'exercises', f'user_{current_user.id}')
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+        
+        # Save the media file 
+        media_path = os.path.join(upload_folder, filename)
+        media.save(media_path)
+        
+        new_media = ExerciseMedia(
+            exercise_id=exercise_id,
+            filename=filename,
+            media_type=media_type,
+            notes=form.notes.data
+        )
+        
+        db.session.add(new_media)
+        db.session.commit()
+        
+        flash("Media uploaded successfully!", "success")
+        return redirect(url_for('main.exercise_details', exercise_id=exercise_id))
+    
+    media_files = ExerciseMedia.query.filter_by(exercise_id=exercise_id).order_by(ExerciseMedia.upload_date.desc()).all()
+    
+    return render_template('exercise_details.html', form=form, exercise=exercise, media_files=media_files)
+
+@main.route('/exercise_media/<filename>')
+@login_required
+def exercise_media(filename):
+    return send_from_directory(os.path.join(current_app.config['UPLOADED_EXERCISES_DEST'], f'user_{current_user.id}'), filename)
+
+@main.route('/delete_media/<int:media_id>/<int:exercise_id>', methods=['POST'])
+@login_required
+def delete_media(media_id, exercise_id):
+    media = ExerciseMedia.query.get_or_404(media_id)
+    exercise = ExerciseLog.query.get_or_404(exercise_id)
+    session = Session.query.get_or_404(exercise.session_id)
+    
+    if session.user_id != current_user.id:
+        flash("You do not have permission to delete this media", "danger")
+        return redirect(url_for('main.dashboard'))
+    
+    try:
+        media_path = os.path.join(current_app.config['UPLOADED_EXERCISES_DEST'], f'user_{current_user.id}', media.filename)
+        if os.path.exists(media_path):
+            os.remove(media_path)
+        else:
+            flash("File not found on server.", "warning")
+        
+        db.session.delete(media)
+        db.session.commit()
+        flash("Media deleted successfully!", "success")
+    except Exception as e:
+        flash(f"An error occured: {str(e)}", "danger")
+        
+    return redirect(url_for('main.exercise_details', exercise_id=exercise_id))
 
 @main.route('/logout', methods=['GET', 'POST'])
 @login_required
@@ -121,7 +263,7 @@ def progressphotos():
         photo = form.photo.data # Getting the photo data from the form
         filename = secure_filename(photo.filename) # Generate a secure filename
         
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', f'user_{current_user.id}') # Defining the upload folder
+        upload_folder = os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], f'user_{current_user.id}') # Defining the upload folder
         
         if not os.path.exists(upload_folder): # If folder does not exist, create it
             os.makedirs(upload_folder)
@@ -150,7 +292,7 @@ def delete_photo(photo_id):
         return redirect(url_for('main.progressphotos'))
     
     try:
-        photo_path = os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], photo.filename)
+        photo_path = os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], f'user_{current_user.id}', photo.filename)
         if os.path.exists(photo_path):
             os.remove(photo_path)
             flash('Photo deleted successfully', 'success')
@@ -167,7 +309,7 @@ def delete_photo(photo_id):
 @main.route('/uploaded_photo/<filename>')
 def uploaded_photo(filename):
     # Serve the photo from the UPLOADED_PHOTOS_DEST folder (static/uploads)
-    return send_from_directory(current_app.config['UPLOADED_PHOTOS_DEST'], filename)
+    return send_from_directory(os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], f'user_{current_user.id}'), filename)
 
 @main.route('/notes', methods=['GET', 'POST'])
 @login_required

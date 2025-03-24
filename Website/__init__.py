@@ -15,16 +15,20 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(app.instance_path, 'fitness_tracker.db')}" #Flask knows we are storing fitness_tracker.db in /instance
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
     app.config['SECRET_KEY'] = 'secretkey' #Key for Flask sessions
-    app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(app.instance_path, 'uploads')
+    
+    app.config['UPLOADS_BASE_DIR'] = os.path.join(app.root_path, 'static', 'uploads')
+    app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(app.config['UPLOADS_BASE_DIR'], 'progress_photos')
+    app.config['UPLOADED_EXERCISES_DEST'] = os.path.join(app.config['UPLOADS_BASE_DIR'], 'exercises')
     
     migrate = Migrate(app, db)
     db.init_app(app) # Connect database to the app
     bcrypt.init_app(app) # Passsing app to bcrypt
     
-    from .models import User, ExerciseLog, WeightLog # Import the models
+    from .models import User, ExerciseLog, WeightLog, ExerciseMedia # Import the models
     
-    with app.app_context():
-        db.create_all() #Creates a database table for our data models
+    # with app.app_context():
+    #     db.create_all() #Creates a database table for our data models
+
         
     login_manager = LoginManager()
     login_manager.init_app(app)

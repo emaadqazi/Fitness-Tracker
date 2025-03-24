@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+<style>
+    .clickable-row:hover {
+      background-color: #f5f5f5;
+    }
+</style>
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>{{ session.title }}</h1>
+        <small>{{ session.date.strftime('%Y-%m-%d %H:%M') }}</small>
+    </div>
+    
+    <div class="mb-3">
+        <p>Feeling before: {{ session.feeling_before }}/10</p>
+        {% if session.feeling_after %}
+            <p>Feeling after: {{ session.feeling_after }}/10</p>
+        {% endif %}
+        {% if session.notes %}
+            <p>Notes: {{ session.notes }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Log Exercise</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        {{ form.exercise.label }}
+                        {{ form.exercise(class="form-control") }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        {{ form.sets.label }}
+                        {{ form.sets(class="form-control") }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        {{ form.reps.label }}
+                        {{ form.reps(class="form-control") }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        {{ form.weight.label }}
+                        {{ form.weight(class="form-control") }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        {{ form.rpe.label }}
+                        {{ form.rpe(class="form-control") }}
+                    </div>
+                </div>
+                <div class="mt-3">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <h2>Exercises</h2>
+    {% if exercises %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Exercise</th>
+                        <th>Sets</th>
+                        <th>Reps</th>
+                        <th>Weight (lbs)</th>
+                        <th>RPE</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for exercise in exercises %}
+                    <tr class="clickable-row" data-href="{{ url_for('main.exercise_details', exercise_id=exercise.id) }}">
+                        <td>{{ exercise.exercise }}</td>
+                        <td>{{ exercise.sets }}</td>
+                        <td>{{ exercise.reps }}</td>
+                        <td>{{ exercise.weight }}</td>
+                        <td>{{ exercise.rpe }}</td>
+                        <td onclick="event.stopPropagation()">
+                            <form action="{{ url_for('main.delete_exercise', exercise_id=exercise.id, session_id=session.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        <td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No exercises logged for this session yet.</p>
+    {% endif %}
+    
+    <div class="mt-3">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        
+        <!-- Button to update feeling after workout -->
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#updateFeelingModal">
+            Update Post-Workout Feeling
+        </button>
+    </div>
+</div>
+
+<!-- Modal for updating feeling after workout -->
+<div class="modal fade" id="updateFeelingModal" tabindex="-1" aria-labelledby="updateFeelingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateFeelingModalLabel">Update Post-Workout Feeling</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('main.update_feeling_after', session_id=session.id) }}" method="POST">
+                    <div class="form-group">
+                        <label for="feeling_after">How do you feel after this workout? (1-10)</label>
+                        <input type="number" class="form-control" id="feeling_after" name="feeling_after" min="1" max="10" required>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const clickableRows = document.querySelectorAll('.clickable-row');
+      clickableRows.forEach(row => {
+        row.addEventListener('click', function() {
+          window.location.href = row.dataset.href;
+        });
+        // Add hover effect to indicate clickability
+        row.style.cursor = 'pointer';
+      });
+    });
+  </script>
+{% endblock %}
