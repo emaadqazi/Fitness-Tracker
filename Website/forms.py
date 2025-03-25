@@ -1,13 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, FileField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, FileField, SelectField
 from flask_wtf.file import FileAllowed #For the PhotoUploading feature
-from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Regexp, StopValidation, DataRequired
+from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Regexp, StopValidation, DataRequired, Email
 from flask import current_app, flash # To avoid circular imports
 from . import db, bcrypt
 from .models import User
 
 class RegisterForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    email = StringField('Email', validators=[DataRequired(), Email()], render_kw={"placeholder": "Email"}) # Implementing an email settings feature
     password = PasswordField(
         validators=[InputRequired(),
             Length(min=6, max=20), #Ensure password is atleast 6 characters, max 20
@@ -64,3 +65,13 @@ class ExerciseMediaForm(FlaskForm):
     ])
     notes = StringField('Notes')
     submit = SubmitField('Upload')
+    
+class SettingsForm(FlaskForm):
+    email = StringField('Email', vaidators=[DataRequired(), Email()])
+    theme = SelectField('Theme', choices=[('light', 'Light'), ('dark', 'Dark'), ('system', 'System Default')])
+    
+    # Implementing password change
+    current_password = PasswordField('Current Password')
+    new_password = PasswordField('New Password')
+    confirm_password = PasswordField('Confirm New Password', validators=[EqualTo('new_password')])
+    submit = SubmitField('Save Changes')

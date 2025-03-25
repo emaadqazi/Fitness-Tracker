@@ -6,7 +6,14 @@ from datetime import datetime
 class User(db.Model, UserMixin): #Table for db
     id = db.Column(db.Integer, primary_key=True) #Identity for user
     username = db.Column(db.String(20), nullable=False, unique=True) #Username, 20 character limit, cannot be empty 
+    email = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False) #Password, 80 character limit, cannot be empty
+    
+    # Settings fields 
+    theme = db.Column(db.String(20), default='light')
+    notification_email = db.Column(db.Boolean, default=True)
+    display_name = db.Column(db.String(50))
+    
     sessions = db.relationship('Session', backref='user', lazy=True)
     weight_logs = db.relationship('WeightLog', back_populates="user", lazy=True) # Establishing a connection with WeightLogs so instances of User are accurate with the inputted data 
 
@@ -61,3 +68,15 @@ class ExerciseMedia(db.Model):
     upload_date = db.Column(db.DateTime, default=datetime.today)
     # Establish a relationship
     exercise = db.relationship('ExerciseLog', backref='media')
+    
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.today)
+    updated_at = db.Column(db.DateTime, default=datetime.today, onupdate=datetime.today)
+    session_id = db.Column(db.Integer, db.ForeignKey('session.id'), nullable=True)
+    user = db.relationship('User', backref=db.backref('notes', lazy=True))
+    session = db.relationship('Session', backref=db.backref('linked_notes', lazy=True))
+    tags = db.Column(db.String(200), nullable=True)

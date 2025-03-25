@@ -1,7 +1,7 @@
 # Routes for the application; the app.py file
 
 from flask import render_template, Blueprint, redirect, url_for, flash, request, session, current_app, send_from_directory
-from .models import User, ExerciseLog, WeightLog, Photo, Session, ExerciseMedia
+from .models import User, ExerciseLog, WeightLog, Photo, Session, ExerciseMedia, Note
 from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm, SessionForm, ExerciseMediaForm
 from . import db, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
@@ -23,6 +23,8 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for('main.dashboard')) # Redirect to home 
+        else:
+            flash("Your username or password may be incorrect.", "danger")
         
     return render_template('login.html', form=form)
 
@@ -50,7 +52,13 @@ def register():
         
         #Case #3 - need to add user to database
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8') #Decode the hash
-        new_user = User(username=form.username.data, password=hashed_password)
+        new_user = User(
+            username=form.username.data,
+            email=form.email.data, 
+            password=hashed_password,
+            theme='light',
+            notification_email=True
+        )
         
         try:
             db.session.add(new_user) # Add new user to data base
@@ -237,6 +245,28 @@ def logout():
     logout_user()
     return redirect(url_for('main.login'))
 
+@main.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        theme = request.form.get('theme') # Get the form data
+        if theme in ['light', 'dark']:
+            current_user.theme = theme # Update user settings depending on selected theme
+            
+        notification_email = 'notification_email' in request.form 
+        current_user.notification_email = notification_email 
+        
+        display_name = request.form.get('display_name')
+        if display_name:
+            current_user.display_name = display_name 
+            
+        db.session.commit()
+        flash('Settings updated successfully!', 'success')
+        return redirect(url_for('main.settings'))
+    
+    return render_template('settings.html')
+    
+
 @main.route('/weightlog', methods=['GET', 'POST'])
 @login_required
 def weightlog():
@@ -314,7 +344,74 @@ def uploaded_photo(filename):
 @main.route('/notes', methods=['GET', 'POST'])
 @login_required
 def notes():
-    return render_template('notes.html')
+    notes = Note.query.filter_by(user_id=current_user.id).order_by(Note.updated_at.desc()).all()
+    sessions = Session.query.filter_by(user_id=current_user.id).order_by(Session.date.desc()).all()
+    
+    all_tags = set() # Need to extract unique tags from user's notes
+    for note in notes:
+        if note.tags:
+            for tag in note.tags.split(','):
+                all_tags.add(tag.strip())
+    
+    return render_template('notes.html', notes=notes, sessions=sessions, all_tags=sorted(all_tags))
+
+@main.route('/create_note', methods=['POST'])
+@login_required
+def create_note():
+    title = request.form.get('title')
+    content = request.form.get('content')
+    tags = request.form.get('tags')
+    session_id = request.form.get('session_id') or None 
+    
+    new_note = Note(
+        user_id = current_user.id,
+        title=title, 
+        content=content, 
+        tags=tags,
+        session_id=session_id
+    )
+    
+    db.session.add(new_note)
+    db.session.commit()
+    flash("Note created successfully!", "success")
+    return redirect(url_for('main.notes'))
+
+@main.route('/edit_note/<int:note_id>', methods=['GET', 'POST'])
+@login_required
+def edit_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    if note.user_id != current_user.id:
+        flash("You do not have permission to edit this note", "danger")
+        return redirect(url_for('main.notes'))
+    
+    if request.method == 'POST':
+        note.title = request.form.get('title')
+        note.content = request.form.get('content')
+        note.tags = request.form.get('tags')
+        note.session_id = request.form.get('session_id') or None 
+        
+        db.session.commit()
+        flash("Note updated successfully", "success")
+        return redirect(url_for('main.notes'))
+    
+    sessions = Session.query.filter_by(user_id=current_user.id).order_by(Session.date.desc()).all()
+    return render_template('edit_note.html', note=note, sessions=sessions)
+
+@main.route('/delete_note/<int:note_id>')
+@login_required
+def delete_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    if note.user_id != current_user.id:
+        flash("You do not have permission to view this note.", "danger")
+        return redirect(url_for('main.notes'))
+    
+    db.session.delete(note)
+    db.session.commit()
+    flash("Note deleted successfully!", "success")
+    return redirect(url_for('main.notes'))
+
 
 @main.route('/challenges', methods=['GET', 'POST'])
 @login_required

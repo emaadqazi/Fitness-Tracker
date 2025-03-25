@@ -1,22 +1,183 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends "base.html" %}
+{% block title %}Notes - Fitness Tracker{% endblock %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>My Notes</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNoteModal">
+            <i class="bi bi-plus-lg"></i> New Note
+        </button>
+    </div>
+</div>
 
-    <title>Hello, world!</title>
-  </head>
-  <body>
-    <h1>Hello, world!</h1>
+<div class="row">
+    <!-- Sidebar with filters -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>Filters</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <input type="text" id="searchNotes" class="form-control" placeholder="Search notes...">
+                </div>
+                
+                <h6>Tags</h6>
+                <div class="mb-3" id="tagFilters">
+                    {% for tag in all_tags %}
+                    <div class="form-check">
+                        <input class="form-check-input tag-filter" type="checkbox" value="{{ tag }}" id="tag{{ loop.index }}">
+                        <label class="form-check-label" for="tag{{ loop.index }}">{{ tag }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <h6>Workout Sessions</h6>
+                <select class="form-select" id="sessionFilter">
+                    <option value="">All Notes</option>
+                    <option value="unlinked">Unlinked Notes</option>
+                    {% for session in sessions %}
+                    <option value="{{ session.id }}">{{ session.title }} ({{ session.date.strftime('%Y-%m-%d') }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notes list -->
+    <div class="col-md-9">
+        <div class="row" id="notesList">
+            {% for note in notes %}
+            <div class="col-md-6 mb-4 note-card" 
+                 data-tags="{{ note.tags }}" 
+                 data-session="{{ note.session_id if note.session_id else 'unlinked' }}">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">{{ note.title }}</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('main.edit_note', note_id=note.id) }}">Edit</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.delete_note', note_id=note.id) }}" 
+                                       onclick="return confirm('Are you sure you want to delete this note?')">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ note.content|truncate(150) }}</p>
+                        {% if note.tags %}
+                        <div class="mt-2">
+                            {% for tag in note.tags.split(',') %}
+                            <span class="badge bg-secondary">{{ tag.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer text-muted d-flex justify-content-between">
+                        <small>{{ note.updated_at.strftime('%Y-%m-%d') }}</small>
+                        {% if note.session %}
+                        <small><a href="{{ url_for('main.session_details', session_id=note.session_id) }}">
+                            <i class="bi bi-link"></i> {{ note.session.title }}
+                        </a></small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col">
+                <div class="alert alert-info">
+                    You haven't created any notes yet. Click "New Note" to get started.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
-</html>
+<!-- Create Note Modal -->
+<div class="modal fade" id="createNoteModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.create_note') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="noteTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="noteTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="noteContent" class="form-label">Content</label>
+                        <textarea class="form-control" id="noteContent" name="content" rows="6" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="noteTags" class="form-label">Tags (comma separated)</label>
+                        <input type="text" class="form-control" id="noteTags" name="tags" placeholder="workout, diet, progress">
+                    </div>
+                    <div class="mb-3">
+                        <label for="sessionLink" class="form-label">Link to Workout Session (optional)</label>
+                        <select class="form-select" id="sessionLink" name="session_id">
+                            <option value="">None</option>
+                            {% for session in sessions %}
+                            <option value="{{ session.id }}">{{ session.title }} ({{ session.date.strftime('%Y-%m-%d') }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    // Search and filtering functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchNotes');
+        const tagFilters = document.querySelectorAll('.tag-filter');
+        const sessionFilter = document.getElementById('sessionFilter');
+        const noteCards = document.querySelectorAll('.note-card');
+        
+        function filterNotes() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedTags = Array.from(tagFilters)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+            const selectedSession = sessionFilter.value;
+            
+            noteCards.forEach(card => {
+                const content = card.textContent.toLowerCase();
+                const cardTags = card.dataset.tags.split(',').map(tag => tag.trim());
+                const cardSession = card.dataset.session;
+                
+                const matchesSearch = content.includes(searchTerm);
+                const matchesTags = selectedTags.length === 0 || 
+                                   selectedTags.some(tag => cardTags.includes(tag));
+                const matchesSession = !selectedSession || cardSession === selectedSession;
+                
+                if (matchesSearch && matchesTags && matchesSession) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        searchInput.addEventListener('input', filterNotes);
+        tagFilters.forEach(checkbox => checkbox.addEventListener('change', filterNotes));
+        sessionFilter.addEventListener('change', filterNotes);
+    });
+</script>
+{% endblock %}
+{% endblock %}

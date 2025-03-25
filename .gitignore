@@ -22,3 +22,6 @@ logs/
 
 # Editor directories
 .vscode/
+
+# Test reports
+reports/

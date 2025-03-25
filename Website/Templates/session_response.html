@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- static/css/themes.css file -->
+    <link rel="stylesheet" href="/static/css/themes.css">
+</head>
+<body class="theme-light">
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Fitness Tracker</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+      
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Center the navbar items -->
+            <ul class="navbar-nav ms-auto">
+                    <!-- Highlight the active page -->
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/weightlog">Weight Log</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/progressphotos">Progress Photos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/notes">Notes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/challenges">Challenges</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="/analytics">Analytics</a>
+                    </li>
+                </ul>
+            
+            <!-- Username and Logout aligned to the right -->
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  testuser
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li><a class="dropdown-item" href="/settings">
+                    <i class="bi bi-gear"></i> Settings
+                  </a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="/logout">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                  </a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      
+
+    <!-- Flash message handling -->
+    
+      
+        <div class="container mt-3">
+          
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              New session created
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          
+        </div>
+      
+    
+
+    <div class="container mt-4">
+        
+<div class="container mt-4">
+    <h1>Dashboard</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Create New Workout Session</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <input id="csrf_token" name="csrf_token" type="hidden" value="ImIwZWUzYmQyYTVkYjdiNTlkYjM1MTdhMzkyOWJhMDVjZTQ3NDBkODIi.Z-M6HQ.HEIHGlVoa_7cx9xgKa0XjBr28t0">
+                <div class="form-group">
+                    <label for="title">Session Title</label>
+                    <input class="form-control" id="title" name="title" required type="text" value="">
+                </div>
+                <div class="form-group">
+                    <label for="feeling_before">How did you feel before (1-10)?</label>
+                    <input class="form-control" id="feeling_before" max="10" min="1" name="feeling_before" required type="number" value="">
+                </div>
+                <div class="form-group">
+                    <label for="notes">Session Notes</label>
+                    <input class="form-control" id="notes" name="notes" type="text" value="">
+                </div>
+                <div class="mt-3">
+                    <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create Session">
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <h2>Previous Sessions</h2>
+    
+        <div class="list-group">
+            
+                <a href="/session_details/1" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Test Workout</h5>
+                        <small>2025-03-25 19:19</small>
+                    </div>
+                    <p class="mb-1">Feeling before: 5/10</p>
+                    
+                    <small>0 exercises logged</small>
+                </a>
+            
+        </div>
+    
+</div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
