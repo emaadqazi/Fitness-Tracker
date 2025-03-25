@@ -1,5 +1,7 @@
 # Fitness Tracker ![alt text](image.png)
 
+![Tests](https://github.com/emaadq/Fitness-Tracker/actions/workflows/python-tests.yml/badge.svg)
+
 ## **Why I Built This**
 I created this **Fitness Tracker** to explore new technologies while working on something I’m passionate about—fitness. As a fitness fanatic, I wanted a project that would not only improve my programming and application development skills but also allow me to experiment with features I wish existed in popular fitness apps today.
 
