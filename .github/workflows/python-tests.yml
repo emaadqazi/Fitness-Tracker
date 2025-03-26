@@ -35,3 +35,8 @@ jobs:
       with:
         name: test-report
         path: reports/test_reports/report.html
+    - name: Check directory structure
+      run: |
+        find . -type d | sort
+        echo "Does templates directory exist?"
+        ls -la Website/templates || echo "Directory not found"
