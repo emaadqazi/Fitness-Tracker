@@ -11,6 +11,8 @@ def client():
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'
     })
     
+    app.template_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'Website', 'templates')
+    
     with app.app_context():
         db.create_all()
         
