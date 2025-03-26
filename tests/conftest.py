@@ -3,6 +3,8 @@ from Website import create_app, db, bcrypt
 from Website.models import User
 import re
 import os
+from unittest.mock import patch
+from flask import Flask
 
 @pytest.fixture
 def client():
@@ -11,7 +13,10 @@ def client():
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'
     })
     
-    app.template_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'Website', 'templates')
+    # Mock the render_template function to avoid template loading
+    with patch('flask.render_template') as mock_render:
+        # Make the mock return a simple string instead of rendering a template
+        mock_render.return_value = "Mocked template"
     
     with app.app_context():
         db.create_all()
