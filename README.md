@@ -1,4 +1,4 @@
-# Fitness Tracker ![alt text](image.png)
+# Fitness Tracker
 
 ![Tests](https://github.com/emaadq/Fitness-Tracker/actions/workflows/python-tests.yml/badge.svg)
 

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>My Challenges</h1>
+    
+    <div class="row mt-4">
+        {% for user_challenge in user_challenges %}
+        <div class="col-md-4 mb-4">
+            <div class="card {% if user_challenge.completed %}border-success{% endif %}">
+                <div class="card-header">
+                    <span class="badge bg-primary">{{ user_challenge.challenge.type|capitalize }}</span>
+                    <span class="badge bg-secondary">{{ user_challenge.challenge.category|capitalize }}</span>
+                    {% if user_challenge.completed %}
+                    <span class="badge bg-success float-end">Completed</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ user_challenge.challenge.title }}</h5>
+                    <p class="card-text">{{ user_challenge.challenge.description }}</p>
+                    
+                    <div class="progress mb-3">
+                        {% set progress = (user_challenge.current_value / user_challenge.challenge.goal_value) * 100 %}
+                        {% if progress > 100 %}
+                            {% set progress = 100 %}
+                        {% endif %}
+                        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" 
+                             aria-valuenow="{{ user_challenge.current_value }}" aria-valuemin="0" 
+                             aria-valuemax="{{ user_challenge.challenge.goal_value }}">
+                            {{ user_challenge.current_value }}/{{ user_challenge.challenge.goal_value }}
+                        </div>
+                    </div>
+                    
+                    <p><strong>Progress:</strong> {{ user_challenge.current_value }}/{{ user_challenge.challenge.goal_value }} {{ user_challenge.challenge.metric }}</p>
+                    <p><strong>End Date:</strong> {{ user_challenge.challenge.end_date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>Points:</strong> {{ user_challenge.challenge.points }}</p>
+                    
+                    {% if not user_challenge.completed %}
+                        <a href="{{ url_for('main.update_challenge', user_challenge_id=user_challenge.id) }}" 
+                           class="btn btn-primary">Update Progress</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -80,3 +80,26 @@ class Note(db.Model):
     user = db.relationship('User', backref=db.backref('notes', lazy=True))
     session = db.relationship('Session', backref=db.backref('linked_notes', lazy=True))
     tags = db.Column(db.String(200), nullable=True)
+    
+class Challenge(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(20), nullable=False) # Daily, weekly or monthly types
+    category = db.Column(db.String(50)) # Strength, Cardio, Consistency, etc.
+    goal_value = db.Column(db.Integer, nullable=False)
+    metric = db.Column(db.String(50)) # How do we want to measure -> reps, weights, days, sessions
+    start_date = db.Column(db.DateTime, default=datetime.today)
+    end_date = db.Column(db.DateTime, nullable=False)
+    points = db.Column(db.Integer, default=10)
+    
+class UserChallenge(db.Model): # User's progress on specific challenges 
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False)
+    current_value = db.Column(db.Integer, default=0)
+    completed = db.Column(db.Boolean, default=False)
+    completed_date = db.Column(db.DateTime, nullable=True)
+    # Establish relationships
+    user = db.relationship('User', backref='challenges') # Backref allows any user instance to access all related UserChallenge instances 
+    challenge = db.relationship('Challenge') # One sided relationship; can access Challenge from UserChallenge but not vice versa 

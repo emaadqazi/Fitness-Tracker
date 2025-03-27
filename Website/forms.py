@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, FileField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, FileField, SelectField, TextAreaField, DateField
 from flask_wtf.file import FileAllowed #For the PhotoUploading feature
 from wtforms.validators import InputRequired, Length, ValidationError, EqualTo, Regexp, StopValidation, DataRequired, Email
 from flask import current_app, flash # To avoid circular imports
@@ -75,3 +75,28 @@ class SettingsForm(FlaskForm):
     new_password = PasswordField('New Password')
     confirm_password = PasswordField('Confirm New Password', validators=[EqualTo('new_password')])
     submit = SubmitField('Save Changes')
+    
+class ChallengeForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    type = SelectField('Type', choices=[
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly')
+    ])
+    category = SelectField('Category', choices=[
+        ('strength', 'Strength'),
+        ('cardio', 'Cardio'),
+        ('consistency', 'Consistency')
+    ])
+    goal_value = IntegerField('Goal', validators=[DataRequired()])
+    metric = SelectField('Metric', choices=[
+        ('reps', 'Repetitions'),
+        ('weight', 'Weight (lbs)'),
+        ('days', 'Days'),
+        ('sessions', 'Sessions')
+    ])
+    end_date = DateField('End Date', validators=[DataRequired()])
+    points = IntegerField('Points', default=10)
+    submit = SubmitField('Create Challenge')
+    

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Update Challenge Progress</h1>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>{{ challenge.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ challenge.description }}</p>
+                    <p><strong>Goal:</strong> {{ challenge.goal_value }} {{ challenge.metric }}</p>
+                    <p><strong>Current Progress:</strong> {{ user_challenge.current_value }} {{ challenge.metric }}</p>
+                    <p><strong>End Date:</strong> {{ challenge.end_date.strftime('%Y-%m-%d') }}</p>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.current_value.label(class="form-label") }}
+                            {{ form.current_value(class="form-control") }}
+                            {% for error in form.current_value.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

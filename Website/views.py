@@ -1,12 +1,17 @@
 # Routes for the application; the app.py file
 
 from flask import render_template, Blueprint, redirect, url_for, flash, request, session, current_app, send_from_directory
-from .models import User, ExerciseLog, WeightLog, Photo, Session, ExerciseMedia, Note
-from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm, SessionForm, ExerciseMediaForm
+from flask_wtf import FlaskForm
+from .models import User, ExerciseLog, WeightLog, Photo, Session, ExerciseMedia, Note, Challenge, UserChallenge
+from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm, SessionForm, ExerciseMediaForm, ChallengeForm
+from wtforms.validators import DataRequired
+from wtforms import IntegerField, SubmitField
 from . import db, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
 import os, time
 from werkzeug.utils import secure_filename
+import datetime 
+from sqlalchemy import and_
 
 main = Blueprint("main", __name__) # Create blueprint for main routes; we can access app
 
@@ -416,7 +421,125 @@ def delete_note(note_id):
 @main.route('/challenges', methods=['GET', 'POST'])
 @login_required
 def challenges():
-    return render_template('challenges.html')
+    # Getting all active challenges for the user 
+    active_pairs = db.session.query(Challenge, UserChallenge).\
+        outerjoin(UserChallenge, and_(UserChallenge.challenge_id == Challenge.id, UserChallenge.user_id == current_user.id)).\
+            filter(Challenge.end_date > datetime.datetime.today()).all()
+            
+    # Convert data 
+    active_challenges = []
+    for challenge, user_challenge in active_pairs:
+        challenge_dict = {
+            'challenge': challenge,
+            'user_challenge': user_challenge,
+            'is_joined': user_challenge is not None
+        }
+        active_challenges.append(challenge_dict)
+            
+    # Getting all completed challenges for the user 
+    completed_pairs = db.session.query(Challenge, UserChallenge).\
+        outerjoin(UserChallenge, and_(UserChallenge.challenge_id == Challenge.id, UserChallenge.user_id == current_user.id)).\
+            filter(UserChallenge.completed == True).\
+                order_by(UserChallenge.completed_date.desc()).all()
+    
+    # Convert data
+    completed_challenges = []
+    for challenge, user_challenge in completed_pairs:
+        if user_challenge is not None: # Include if user joined it
+            challenge_dict = {
+                'challenge': challenge,
+                'user_challenge': user_challenge,
+            }
+            completed_challenges.append(challenge_dict)
+
+    return render_template('challenges.html', active_challenges=active_challenges, completed_challenges=completed_challenges)
+
+@main.route('/join_challenge/<int:challenge_id>', methods=['GET', 'POST'])
+@login_required 
+def join_challenge(challenge_id):
+    # Verify challenge exists 
+    challenge = Challenge.query.get_or_404(challenge_id)
+    
+    # Check if user has joined the challenge yet or not
+    existing = UserChallenge.query.filter_by(
+        user_id=current_user.id,
+        challenge_id=challenge_id
+    ).first()
+    
+    if existing:
+        flash("You have already joined this challenge", "success")
+    else:
+        # Create a new user challnege 
+        user_challenge = UserChallenge(
+            user_id=current_user.id, 
+            challenge_id=challenge_id,
+            current_value=0,
+            completed=False,
+        )
+        db.session.add(user_challenge)
+        db.session.commit()
+        flash(f'You have jointed the "{challenge.title}" challenge!', "success")
+        
+    return redirect(url_for('main.challenges'))
+    
+@main.route('/create_challenge', methods=['GET', 'POST'])
+@login_required
+def create_challenge():
+    form = ChallengeForm()
+    
+    if form.validate_on_submit():
+        new_challenge = Challenge(
+            id=None,
+            title=form.title.data,
+            description=form.description.data,
+            type=form.type.data,
+            category=form.category.data,
+            goal_value=form.goal_value.data,
+            metric=form.metric.data,
+            end_date=form.end_date.data,
+            points=form.points.data,
+        )
+        db.session.add(new_challenge)
+        db.session.commit()
+        flash("New challenge created successfully.", "success")
+        return (redirect(url_for('main.challenges')))
+    
+    return render_template('create_challenge.html', form=form)
+
+@main.route('/update_challenge/<int:user_challenge_id>', methods=['GET', 'POST'])    
+def update_challenge(user_challenge_id):
+    # Get the user challenge entry if it exists 
+    user_challenge = UserChallenge.query.filter_by(
+        id=user_challenge_id, 
+        user_id=current_user.id
+    ).first_or_404()
+    
+    challenge = user_challenge.challenge # Get corresponding challenge meant to update 
+    class UpdateForm(FlaskForm): # Implement update form to update challenge 
+        current_value = IntegerField(f'Current progress ({challenge.metric})', validators=[DataRequired()])
+        submit = SubmitField('Update Progress')
+        
+    form = UpdateForm()
+    
+    if form.validate_on_submit():
+        user_challenge.current_value = form.current_value.data # Set user's current challenge value to new form value 
+        if user_challenge.current_value >= challenge.goal_value and not user_challenge.completed:
+            user_challenge.completed = True # Raise flag to True indicated challenge has been completed
+            user_challenge.completed_date = datetime.now() # Record current time
+            current_user.points = current_user.points + challenge.points # Update the point system mechanics 
+            flash(f'Congratulations! You have completed the challenge and earned {challenge.points} points!', 'success')
+            
+        db.session.commit()
+        return redirect(url_for('main.my_challenges'))
+    
+    form.current_value.data = user_challenge.current_value 
+    return render_template('update_challenge.html', form=form, user_challenge=user_challenge, challenge=challenge)
+
+@main.route('/my_challenges')
+@login_required
+def my_challenges():
+    user_challenges = UserChallenge.query.filter_by(user_id=current_user.id).join(Challenge).all()
+    return render_template('my_challenges.html', user_challenges=user_challenges)
 
 @main.route('/analytics', methods=['GET', 'POST'])
 @login_required
