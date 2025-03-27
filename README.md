@@ -1,8 +1,6 @@
 # Fitness Tracker
 
 ![Tests](https://github.com/emaadq/Fitness-Tracker/actions/workflows/python-tests.yml/badge.svg)
-![License](https://img.shields.io/github/license/emaadq/Fitness-Tracker)
-![Version](https://img.shields.io/github/v/release/emaadq/Fitness-Tracker)
 [Last Commit](https://img.shields.io/github/last-commit/emaadq/Fitness-Tracker)
 ![Code Size](https://img.shields.io/github/languages/code-size/emaadq/Fitness-Tracker)
 ![Top Language](https://img.shields.io/github/languages/top/emaadq/Fitness-Tracker)ww
@@ -74,7 +72,7 @@ cd Fitness-Tracker
 
 2. Create and activate a virtual environment
 python -m venv venv 
-venv\Scripts\Activate (Windows)
+venv\Scripts\Activate (Windows)\n
 source venv\bin\activate (MacOS)
 
 3. Install relevant dependencies
