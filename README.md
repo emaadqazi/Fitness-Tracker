@@ -2,9 +2,9 @@
 
 ![Tests](https://github.com/emaadq/Fitness-Tracker/actions/workflows/python-tests.yml/badge.svg)
 ![Code Size](https://img.shields.io/github/languages/code-size/emaadq/Fitness-Tracker)
-![Top Language](https://img.shields.io/github/languages/top/emaadq/Fitness-Tracker)ww
+![Top Language](https://img.shields.io/github/languages/top/emaadq/Fitness-Tracker)
 ![Flask](https://img.shields.io/badge/flask-2.0+-green.svg)v
-[Last Commit](https://img.shields.io/github/last-commit/emaadq/Fitness-Tracker)
+![Last Commit](https://img.shields.io/github/last-commit/emaadq/Fitness-Tracker)
 
 ## **Why I Built This**
 I created this **Fitness Tracker** to explore new technologies while working on something I’m passionate about—fitness. As a fitness fanatic, I wanted a project that would not only improve my programming and application development skills but also allow me to experiment with features I wish existed in popular fitness apps today.
