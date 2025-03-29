@@ -69,26 +69,55 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form.end_date.label(class="form-label") }}
-                                    {{ form.end_date(class="form-control", type="date") }}
-                                    {% for error in form.end_date.errors %}
+                                    {{ form.difficulty.label(class="form-label") }}
+                                    {{ form.difficulty(class="form-select") }}
+                                    {% for error in form.difficulty.errors %}
                                         <span class="text-danger">{{ error }}</span>
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form.points.label(class="form-label") }}
-                                    {{ form.points(class="form-control") }}
-                                    {% for error in form.points.errors %}
+                                    {{ form.base_points.label(class="form-label") }}
+                                    {{ form.base_points(class="form-control") }}
+                                    {% for error in form.base_points.errors %}
                                         <span class="text-danger">{{ error }}</span>
                                     {% endfor %}
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.badge_name.label(class="form-label") }}
+                                    {{ form.badge_name(class="form-control") }}
+                                    {% for error in form.badge_name.errors %}
+                                        <span class="text-danger">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.badge_image.label(class="form-label") }}
+                                    {{ form.badge_image(class="form-select") }}
+                                    {% for error in form.badge_image.errors %}
+                                        <span class="text-danger">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.end_date.label(class="form-label") }}
+                            {{ form.end_date(class="form-control", type="date") }}
+                            {% for error in form.end_date.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
                         </div>
                         
                         <div class="d-grid gap-2">

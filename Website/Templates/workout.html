@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Log Your Workout</h2>
+    <form method="POST" action="{{ url_for('main.workout') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.exercise.label }}
+            {{ form.exercise(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.exercise_type.label }}
+            {{ form.exercise_type(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.sets.label }}
+            {{ form.sets(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.reps.label }}
+            {{ form.reps(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.weight.label }}
+            {{ form.weight(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.rpe.label }}
+            {{ form.rpe(class="form-control") }}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+{% endblock %} 

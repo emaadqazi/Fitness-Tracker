@@ -37,6 +37,12 @@ class LoginForm(FlaskForm):
     
 class WorkoutLog(FlaskForm):
     exercise = StringField('Exercise Name: ', validators=[InputRequired()])
+    exercise_type = SelectField('Exercise Type', choices=[
+        ('strength', 'Strength'),
+        ('cardio', 'Cardio'),
+        ('flexibility', 'Flexibility'),
+        ('hiit', 'HIIT')
+    ], validators=[InputRequired()])
     sets = IntegerField('Sets: ', validators=[InputRequired()])
     reps = IntegerField('Reps: ', validators=[InputRequired()])
     weight = FloatField('Weight (lbs): ', validators=[InputRequired()]) #Need to implement toggle feature between lbs/kg
@@ -97,6 +103,42 @@ class ChallengeForm(FlaskForm):
         ('sessions', 'Sessions')
     ])
     end_date = DateField('End Date', validators=[DataRequired()])
-    points = IntegerField('Points', default=10)
+    difficulty = SelectField('Difficulty', choices=[
+        ('Beginner', 'Beginner'),
+        ('Intermediate', 'Intermediate'),
+        ('Advanced', 'Advanced')],
+        validators=[DataRequired()])
+    base_points = IntegerField('Base Points', validators=[DataRequired()], default=100)
+    badge_name = StringField('Badge Name', validators=[DataRequired()])
+    badge_image = SelectField('Badge Icon', choices=[
+        ('🏃', 'Runner'), ('💪', 'Strength'), 
+        ('🏋️', 'Weightlifter'), ('🧘', 'Flexibility'),
+        ('🎯', 'Target'), ('⭐', 'Star'),
+        ('🏅', 'Medal'), ('🏆', 'Trophy')],
+        validators=[DataRequired()])
     submit = SubmitField('Create Challenge')
+
+class AnalyticsFilterForm(FlaskForm):
+    date_range = SelectField('Date Range', choices=[
+        ('7d', 'Last 7 Days'),
+        ('30d', 'Last 30 Days'),
+        ('90d', 'Last 90 Days'),
+        ('1y', 'Last Year')
+    ], default='30d')
     
+    exercise_type = SelectField('Exercise Type', choices=[
+        ('all', 'All Types'),
+        ('strength', 'Strength'),
+        ('cardio', 'Cardio'),
+        ('flexibility', 'Flexibility'),
+        ('hiit', 'HIIT')
+    ], default='all')
+    
+    challenge_status = SelectField('Challenge Status', choices=[
+        ('all', 'All Statuses'),
+        ('completed', 'Completed'),
+        ('in_progress', 'In Progress'),
+        ('not_started', 'Not Started')
+    ], default='all')
+    
+    submit = SubmitField('Apply Filters')

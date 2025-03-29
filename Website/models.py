@@ -8,6 +8,7 @@ class User(db.Model, UserMixin): #Table for db
     username = db.Column(db.String(20), nullable=False, unique=True) #Username, 20 character limit, cannot be empty 
     email = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False) #Password, 80 character limit, cannot be empty
+    created_at = db.Column(db.DateTime, default=datetime.today)
     
     # Settings fields 
     theme = db.Column(db.String(20), default='light')
@@ -31,6 +32,7 @@ class ExerciseLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, db.ForeignKey('session.id'), nullable=False)
     exercise = db.Column(db.String(50), nullable=False)
+    exercise_type = db.Column(db.String(20), nullable=False)  # strength, cardio, flexibility, hiit
     sets = db.Column(db.Integer, nullable=False)
     reps = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Float, nullable=False)
@@ -91,7 +93,28 @@ class Challenge(db.Model):
     metric = db.Column(db.String(50)) # How do we want to measure -> reps, weights, days, sessions
     start_date = db.Column(db.DateTime, default=datetime.today)
     end_date = db.Column(db.DateTime, nullable=False)
-    points = db.Column(db.Integer, default=10)
+    difficulty = db.Column(db.String(20), nullable=False, default='Beginner') # Beginner, Intermediate, Advanced 
+    badge_name = db.Column(db.String(50), nullable=False)
+    badge_image = db.Column(db.String(200), nullable=False)
+    base_points = db.Column(db.Integer, nullable=False)
+
+    def calculate_points(self, completion_percentage):
+        difficulty_multiplier = {
+            'Beginner': 1,
+            'Intermediate': 1.5,
+            'Advanced': 2
+        }
+
+        if completion_percentage >= 100:
+            tier_multiplier = 1.0 # Gold 
+        elif completion_percentage >= 75:
+            tier_multiplier = 0.75 # Silver
+        elif completion_percentage >= 50:
+            tier_multiplier = 0.50 # Bronze
+        else:
+            tier_multiplier = 0.25 # Participant 
+
+        return int(self.base_points * difficulty_multiplier(self.difficulty) * tier_multiplier)
     
 class UserChallenge(db.Model): # User's progress on specific challenges 
     id = db.Column(db.Integer, primary_key=True)
@@ -100,6 +123,44 @@ class UserChallenge(db.Model): # User's progress on specific challenges
     current_value = db.Column(db.Integer, default=0)
     completed = db.Column(db.Boolean, default=False)
     completed_date = db.Column(db.DateTime, nullable=True)
+    achievement_tier = db.Column(db.String(20), nullable=True) # Gold, Silver, Bronze or Participant 
+    earned_points = db.Column(db.Integer, default=0)
+    badge_earned = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.today)
+
+    # Need a way to track progress 
+    def update_progress(self, new_value):
+        self.current_value = new_value 
+        completion_percentage = (new_value / self.challenge.goal_value) * 100
+
+        if completion_percentage >= 100:
+            self.achievement_tier = 'Gold'
+        elif completion_percentage >= 75:
+            self.achievement_tier = 'Silver'
+        elif completion_percentage >= 50:
+            self.achievement_tier = 'Bronze'
+        else:
+            self.achievement_tier = 'Participant'
+
+        self.earned_points = self.challenge.calculate_points(completion_percentage)
+
+        if completion_percentage >= 100 and not self.badge_earned:
+            self.badge_earned = True 
+
+        return self.achievement_tier, self.earned_points
+    
     # Establish relationships
     user = db.relationship('User', backref='challenges') # Backref allows any user instance to access all related UserChallenge instances 
     challenge = db.relationship('Challenge') # One sided relationship; can access Challenge from UserChallenge but not vice versa 
+
+class UserBadges(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False)
+    badge_name = db.Column(db.String(50), nullable=False)
+    badge_image = db.Column(db.String(200), nullable=False)
+    earned_date = db.Column(db.DateTime, default=datetime.today)
+    achievement_tier = db.Column(db.String(20), nullable=False)
+
+    user = db.relationship('User', backref=db.backref('badges', lazy=True)) # Creates relationship with UserBadges and Users --> allows for things like user.badges
+    challenge = db.relationship('Challenge') # one-way relationship to Challenge

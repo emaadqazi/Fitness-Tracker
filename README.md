@@ -3,7 +3,7 @@
 ![Tests](https://github.com/emaadq/Fitness-Tracker/actions/workflows/python-tests.yml/badge.svg)
 ![Code Size](https://img.shields.io/github/languages/code-size/emaadq/Fitness-Tracker)
 ![Top Language](https://img.shields.io/github/languages/top/emaadq/Fitness-Tracker)
-![Flask](https://img.shields.io/badge/flask-2.0+-green.svg)v
+![Flask](https://img.shields.io/badge/flask-2.0+-green.svg)
 ![Last Commit](https://img.shields.io/github/last-commit/emaadq/Fitness-Tracker)
 
 ## **Why I Built This**

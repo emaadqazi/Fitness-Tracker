@@ -16,13 +16,15 @@
                 <div class="card-header">
                     <span class="badge bg-primary">{{ item.challenge.type|capitalize }}</span>
                     <span class="badge bg-secondary">{{ item.challenge.category|capitalize }}</span>
+                    <span class="badge bg-info">{{ item.challenge.difficulty }}</span>
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">{{ item.challenge.title }}</h5>
                     <p class="card-text">{{ item.challenge.description }}</p>
                     <p><strong>Goal:</strong> {{ item.challenge.goal_value }} {{ item.challenge.metric }}</p>
                     <p><strong>End Date:</strong> {{ item.challenge.end_date.strftime('%Y-%m-%d') }}</p>
-                    <p><strong>Points:</strong> {{ item.challenge.points }}</p>
+                    <p><strong>Base Points:</strong> {{ item.challenge.base_points }}</p>
+                    <p><strong>Badge:</strong> {{ item.challenge.badge_image }} {{ item.challenge.badge_name }}</p>
                     
                     {% if item.is_joined %}
                         <a href="{{ url_for('main.my_challenges') }}" class="btn btn-success">View Progress</a>
@@ -45,26 +47,27 @@
     <h2 class="mt-5">Completed Challenges</h2>
     <div class="row">
         {% for item in completed_challenges %}
-        <div class="col-md-4 mb-4">
-            <div class="card border-success">
-                <div class="card-header">
-                    <span class="badge bg-primary">{{ item.challenge.type|capitalize }}</span>
-                    <span class="badge bg-secondary">{{ item.challenge.category|capitalize }}</span>
-                    <span class="badge bg-success float-end">Completed</span>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ item.challenge.title }}</h5>
-                    <p class="card-text">{{ item.challenge.description }}</p>
-                    <p><strong>Goal:</strong> {{ item.challenge.goal_value }} {{ item.challenge.metric }}</p>
-                    <p><strong>Completion Date:</strong> 
-                       {% if item.user_challenge.completed_date %}
-                           {{ item.user_challenge.completed_date.strftime('%Y-%m-%d') }}
-                       {% else %}
-                           Unknown
-                       {% endif %}
-                    </p>
-                    <p><strong>Points Earned:</strong> {{ item.challenge.points }}</p>
-                </div>
+        <div class="card border-success">
+            <div class="card-header">
+                <span class="badge bg-primary">{{ item.challenge.type|capitalize }}</span>
+                <span class="badge bg-secondary">{{ item.challenge.category|capitalize }}</span>
+                <span class="badge bg-info">{{ item.challenge.difficulty }}</span>
+                <span class="badge bg-success float-end">Completed</span>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ item.challenge.title }}</h5>
+                <p class="card-text">{{ item.challenge.description }}</p>
+                <p><strong>Goal:</strong> {{ item.challenge.goal_value }} {{ item.challenge.metric }}</p>
+                <p><strong>Completion Date:</strong> 
+                   {% if item.user_challenge.completed_date %}
+                       {{ item.user_challenge.completed_date.strftime('%Y-%m-%d') }}
+                   {% else %}
+                       Unknown
+                   {% endif %}
+                </p>
+                <p><strong>Achievement Tier:</strong> {{ item.user_challenge.achievement_tier }}</p>
+                <p><strong>Points Earned:</strong> {{ item.user_challenge.earned_points }}</p>
+                <p><strong>Badge Earned:</strong> {{ item.challenge.badge_image }} {{ item.challenge.badge_name }}</p>
             </div>
         </div>
         {% endfor %}

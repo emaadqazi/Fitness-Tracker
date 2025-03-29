@@ -11,6 +11,7 @@
                 <div class="card-header">
                     <span class="badge bg-primary">{{ user_challenge.challenge.type|capitalize }}</span>
                     <span class="badge bg-secondary">{{ user_challenge.challenge.category|capitalize }}</span>
+                    <span class="badge bg-info">{{ user_challenge.challenge.difficulty }}</span>
                     {% if user_challenge.completed %}
                     <span class="badge bg-success float-end">Completed</span>
                     {% endif %}
@@ -33,7 +34,9 @@
                     
                     <p><strong>Progress:</strong> {{ user_challenge.current_value }}/{{ user_challenge.challenge.goal_value }} {{ user_challenge.challenge.metric }}</p>
                     <p><strong>End Date:</strong> {{ user_challenge.challenge.end_date.strftime('%Y-%m-%d') }}</p>
-                    <p><strong>Points:</strong> {{ user_challenge.challenge.points }}</p>
+                    <p><strong>Achievement Tier:</strong> {{ user_challenge.achievement_tier }}</p>
+                    <p><strong>Points Earned:</strong> {{ user_challenge.earned_points }}</p>
+                    <p><strong>Badge:</strong> {{ user_challenge.challenge.badge_image }} {{ user_challenge.challenge.badge_name }}</p>
                     
                     {% if not user_challenge.completed %}
                         <a href="{{ url_for('main.update_challenge', user_challenge_id=user_challenge.id) }}" 

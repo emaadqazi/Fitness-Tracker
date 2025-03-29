@@ -27,15 +27,23 @@ def create_app(test_config=None):
     db.init_app(app) # Connect database to the app
     bcrypt.init_app(app) # Passsing app to bcrypt
     
-    from .models import User, ExerciseLog, WeightLog, ExerciseMedia, Note, Challenge, UserChallenge # Import the models
+    from .models import User, ExerciseLog, WeightLog, ExerciseMedia, Note, Challenge, UserChallenge, UserBadges, Session # Import the models
     
     with app.app_context():
         Note.__table__.drop(db.engine, checkfirst=True)
         Note.__table__.create(db.engine)
         Challenge.__table__.drop(db.engine, checkfirst=True)
         UserChallenge.__table__.drop(db.engine, checkfirst=True)
+        UserBadges.__table__.drop(db.engine, checkfirst=True)
+        ExerciseLog.__table__.drop(db.engine, checkfirst=True)
+        Session.__table__.drop(db.engine, checkfirst=True)
+        User.__table__.drop(db.engine, checkfirst=True)
         Challenge.__table__.create(db.engine)
         UserChallenge.__table__.create(db.engine)
+        UserBadges.__table__.create(db.engine)
+        ExerciseLog.__table__.create(db.engine)
+        Session.__table__.create(db.engine)
+        User.__table__.create(db.engine)
         db.create_all() #Creates a database table for our data models
 
     login_manager = LoginManager()

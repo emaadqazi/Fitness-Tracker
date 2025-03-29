@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Analytics Dashboard</h1>
+    
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    {{ form.date_range.label(class="form-label") }}
+                    {{ form.date_range(class="form-select") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.exercise_type.label(class="form-label") }}
+                    {{ form.exercise_type(class="form-select") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.challenge_status.label(class="form-label") }}
+                    {{ form.challenge_status(class="form-select") }}
+                </div>
+                <div class="col-12">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <!-- User Growth Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>User Growth Over Time</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Frequency Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Weekly Workout Frequency</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="workoutFrequencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge Completion Rate -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Challenge Completion Rate</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="challengeCompletionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercise Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Exercise Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="exerciseDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Get the analytics data from the backend
+const analyticsData = {{ analytics_data|tojson|safe }};
+
+// Common chart options
+const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom'
+        }
+    }
+};
+
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+new Chart(userGrowthCtx, {
+    type: 'line',
+    data: {
+        labels: analyticsData.user_growth.labels,
+        datasets: [{
+            label: 'New Users',
+            data: analyticsData.user_growth.data,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1,
+            fill: true
+        }]
+    },
+    options: {
+        ...commonOptions,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Workout Frequency Chart
+const workoutFrequencyCtx = document.getElementById('workoutFrequencyChart').getContext('2d');
+new Chart(workoutFrequencyCtx, {
+    type: 'bar',
+    data: {
+        labels: analyticsData.workout_frequency.labels,
+        datasets: [{
+            label: 'Workouts',
+            data: analyticsData.workout_frequency.data,
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        ...commonOptions,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Challenge Completion Rate Chart
+const challengeCompletionCtx = document.getElementById('challengeCompletionChart').getContext('2d');
+new Chart(challengeCompletionCtx, {
+    type: 'doughnut',
+    data: {
+        labels: analyticsData.challenge_completion.labels,
+        datasets: [{
+            data: analyticsData.challenge_completion.data,
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(255, 99, 132, 0.7)'
+            ],
+            borderColor: [
+                'rgb(75, 192, 192)',
+                'rgb(255, 206, 86)',
+                'rgb(255, 99, 132)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: commonOptions
+});
+
+// Exercise Distribution Chart
+const exerciseDistributionCtx = document.getElementById('exerciseDistributionChart').getContext('2d');
+new Chart(exerciseDistributionCtx, {
+    type: 'pie',
+    data: {
+        labels: analyticsData.exercise_distribution.labels,
+        datasets: [{
+            data: analyticsData.exercise_distribution.data,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)'
+            ],
+            borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 206, 86)',
+                'rgb(75, 192, 192)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: commonOptions
+});
+</script>
+{% endblock %}

@@ -3,7 +3,7 @@
 from flask import render_template, Blueprint, redirect, url_for, flash, request, session, current_app, send_from_directory
 from flask_wtf import FlaskForm
 from .models import User, ExerciseLog, WeightLog, Photo, Session, ExerciseMedia, Note, Challenge, UserChallenge
-from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm, SessionForm, ExerciseMediaForm, ChallengeForm
+from .forms import LoginForm, RegisterForm, WorkoutLog, WeightLogForm, PhotoUploadForm, SessionForm, ExerciseMediaForm, ChallengeForm, AnalyticsFilterForm
 from wtforms.validators import DataRequired
 from wtforms import IntegerField, SubmitField
 from . import db, bcrypt
@@ -11,7 +11,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 import os, time
 from werkzeug.utils import secure_filename
 import datetime 
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 
 main = Blueprint("main", __name__) # Create blueprint for main routes; we can access app
 
@@ -497,7 +497,10 @@ def create_challenge():
             goal_value=form.goal_value.data,
             metric=form.metric.data,
             end_date=form.end_date.data,
-            points=form.points.data,
+            difficulty=form.difficulty.data,
+            base_points=form.base_points.data,
+            badge_name=form.badge_name.data,
+            badge_image=form.badge_image.data
         )
         db.session.add(new_challenge)
         db.session.commit()
@@ -544,4 +547,109 @@ def my_challenges():
 @main.route('/analytics', methods=['GET', 'POST'])
 @login_required
 def analytics():
-    return render_template('analytics.html')
+    form = AnalyticsFilterForm()
+
+    # Get the filter parameters
+    date_range = request.args.get('date_range', '30d')
+    exercise_type = request.args.get('exercise_type', 'all')
+    challenge_status = request.args.get('challenge_status', 'all')
+
+    # Calculate the date range
+    end_date = datetime.datetime.now()
+    if date_range == '7d':
+        start_date = end_date - datetime.timedelta(days=7)
+    elif date_range == '30d':
+        start_date = end_date - datetime.timedelta(days=30)
+    elif date_range == '90d':
+        start_date = end_date - datetime.timedelta(days=90)
+    else:
+        start_date = end_date - datetime.timedelta(days=365)
+
+    # Get user growth data
+    user_growth = db.session.query(
+        db.func.date(User.created_at).label('date'),
+        db.func.count(User.id).label('count')
+    ).filter(
+        User.created_at.between(start_date, end_date)
+    ).group_by(
+        db.func.date(User.created_at)
+    ).all()
+
+    # Get workout frequency data
+    workout_frequency = db.session.query(
+        db.func.strftime('%w', Session.date).label('day'),
+        db.func.count(Session.id).label('count')
+    ).filter(
+        Session.date.between(start_date, end_date),
+        Session.user_id == current_user.id
+    ).group_by(
+        db.func.strftime('%w', Session.date)
+    ).all()
+
+    # Get challenge completion data
+    challenge_completion = db.session.query(
+        UserChallenge.completed,
+        db.func.count(UserChallenge.id).label('count')
+    ).filter(
+        UserChallenge.user_id == current_user.id,
+        UserChallenge.created_at.between(start_date, end_date)
+    ).group_by(
+        UserChallenge.completed
+    ).all()
+
+    # Get exercise distribution data
+    exercise_distribution = db.session.query(
+        ExerciseLog.exercise_type,
+        db.func.count(ExerciseLog.id).label('count')
+    ).join(
+        Session
+    ).filter(
+        Session.user_id == current_user.id,
+        Session.date.between(start_date, end_date)
+    ).group_by(
+        ExerciseLog.exercise_type
+    ).all()
+
+    # Format the data for the charts
+    analytics_data = {
+        'user_growth': {
+            'labels': [str(date) for date, _ in user_growth],
+            'data': [count for _, count in user_growth]
+        },
+        'workout_frequency': {
+            'labels': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            'data': [0] * 7  # Initialize with zeros
+        },
+        'challenge_completion': {
+            'labels': ['Completed', 'In Progress', 'Not Started'],
+            'data': [0, 0, 0]  # Initialize with zeros
+        },
+        'exercise_distribution': {
+            'labels': ['Strength', 'Cardio', 'Flexibility', 'HIIT'],
+            'data': [0, 0, 0, 0]  # Initialize with zeros
+        }
+    }
+
+    # Update the workout frequency data
+    for day, count in workout_frequency:
+        analytics_data['workout_frequency']['data'][int(day)] = count
+
+    # Update challenge completion data
+    for completed, count in challenge_completion:
+        if completed:
+            analytics_data['challenge_completion']['data'][0] = count
+        else:
+            analytics_data['challenge_completion']['data'][1] = count
+
+    # Update exercise distribution data
+    for exercise_type, count in exercise_distribution:
+        if exercise_type == 'strength':
+            analytics_data['exercise_distribution']['data'][0] = count
+        elif exercise_type == 'cardio':
+            analytics_data['exercise_distribution']['data'][1] = count
+        elif exercise_type == 'flexibility':
+            analytics_data['exercise_distribution']['data'][2] = count
+        elif exercise_type == 'hiit':
+            analytics_data['exercise_distribution']['data'][3] = count
+
+    return render_template('analytics.html', form=form, analytics_data=analytics_data)
