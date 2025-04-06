@@ -70,13 +70,21 @@ A **Flask-based Fitness Tracker** that allows users to register, log in, and tra
 ```bash
 git clone https://github.com/emaadq/Fitness-Tracker.git
 ```
+2. Go to the repository
+``` bash
 cd Fitness-Tracker
+```
 
-3. Create and activate a virtual environment
+4. Create and activate a virtual environment
 ``` bash
 python -m venv venv
-
-venv\Scripts\Activate (Windows)\n
+```
+If you are on windows, use:
+``` bash
+venv\Scripts\Activate
+```
+If you are MacOS, use:
+``` bash
 source venv\bin\activate (MacOS)
 ```
 
