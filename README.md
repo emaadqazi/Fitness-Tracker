@@ -66,24 +66,35 @@ A **Flask-based Fitness Tracker** that allows users to register, log in, and tra
 - **Chart.js** (Data Visualization)
 
 ## Installation and Setup 
-1. Clone the repository 
+1. Clone the repository
+```bash
 git clone https://github.com/emaadq/Fitness-Tracker.git
+```
 cd Fitness-Tracker
 
-2. Create and activate a virtual environment
-python -m venv venv 
+3. Create and activate a virtual environment
+``` bash
+python -m venv venv
+
 venv\Scripts\Activate (Windows)\n
 source venv\bin\activate (MacOS)
+```
 
-3. Install relevant dependencies
+5. Install relevant dependencies
+``` bash
 pip install -r requirements.txt
+```
 
-4. Run the application
-py main.py 
+7. Run the application
+``` bash
+py main.py
+```
 or
+``` bash
 flask run
+```
 
-5. Access the application at 'http://localhost:5000'
+9. Access the application at 'http://localhost:5000'
 
 
 ## Future Enhancements
