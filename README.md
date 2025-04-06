@@ -75,7 +75,7 @@ git clone https://github.com/emaadq/Fitness-Tracker.git
 cd Fitness-Tracker
 ```
 
-4. Create and activate a virtual environment
+3. Create and activate a virtual environment
 ``` bash
 python -m venv venv
 ```
@@ -85,15 +85,15 @@ venv\Scripts\Activate
 ```
 If you are MacOS, use:
 ``` bash
-source venv\bin\activate (MacOS)
+source venv\bin\activate
 ```
 
-5. Install relevant dependencies
+4. Install relevant dependencies
 ``` bash
 pip install -r requirements.txt
 ```
 
-7. Run the application
+5. Run the application
 ``` bash
 py main.py
 ```
@@ -102,7 +102,7 @@ or
 flask run
 ```
 
-9. Access the application at 'http://localhost:5000'
+6. Access the application at 'http://localhost:5000'
 
 
 ## Future Enhancements
