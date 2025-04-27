@@ -14,7 +14,7 @@ bcrypt = Bcrypt() #Initialize without passing app yet
 load_dotenv() # Load the .env file to access the keys 
 
 def create_app(test_config=None):
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='Website/templates')
     # app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(app.instance_path, 'fitness_tracker.db')}" #Flask knows we are storing fitness_tracker.db in /instance
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres.wjzfjoskauarjckfrorj:eHhjYrFfPuptMC5a@aws-0-ca-central-1.pooler.supabase.com:6543/postgres'
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
