@@ -14,7 +14,7 @@ bcrypt = Bcrypt() #Initialize without passing app yet
 load_dotenv() # Load the .env file to access the keys 
 
 def create_app(test_config=None):
-    app = Flask(__name__, template_folder=os.getenv('TEMPLATE_PATH', 'Website/templates'))
+    app = Flask(__name__, template_folder='templates')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
     app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
