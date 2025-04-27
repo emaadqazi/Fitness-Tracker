@@ -41,13 +41,14 @@
                 <div class="col-md-4 mb-3">
                     <div class="card">
                         {% if media.media_type == 'photo' %}
-                            <img src="{{ url_for('main.exercise_media', filename=media.filename) }}" class="card-img-top" alt="Exercise photo">
+                            <img src="{{ supabase_exercise_url(media.filename) }}" class="card-img-top" alt="Exercise photo">
                         {% else %}
                             <video controls class="card-img-top">
-                                <source src="{{ url_for('main.exercise_media', filename=media.filename) }}" type="video/mp4">
+                                <source src="{{ supabase_exercise_url(media.filename) }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                         {% endif %}
+                    </div>
                         <div class="card-body">
                             <p class="card-text">{{ media.notes }}</p>
                             <p class="card-text"><small class="text-muted">Uploaded on {{ media.upload_date.strftime('%Y-%m-%d %H:%M') }}</small></p>

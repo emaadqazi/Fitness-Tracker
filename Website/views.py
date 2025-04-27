@@ -8,10 +8,13 @@ from wtforms.validators import DataRequired
 from wtforms import IntegerField, SubmitField
 from . import db, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
-import os, time
+import os, time, requests
 from werkzeug.utils import secure_filename
 import datetime 
 from sqlalchemy import and_, func
+
+SUPABASE_API_KEY = os.getenv('SUPABASE_API_KEY')
+SUPABASE_URL = os.getenv('SUPABASE_URL')
 
 main = Blueprint("main", __name__) # Create blueprint for main routes; we can access app
 
@@ -113,9 +116,11 @@ def session_details(session_id):
     
     form = WorkoutLog()
     if form.validate_on_submit():
+        print("Form validated successfully!")
         new_exercise = ExerciseLog(
             session_id=session_id, 
             exercise=form.exercise.data,
+            exercise_type='strength', # Default exercise type value for now 
             sets=form.sets.data,
             reps=form.reps.data,
             weight=form.weight.data,
@@ -124,6 +129,8 @@ def session_details(session_id):
         db.session.commit()
         flash("Exercise logged successfully!", "success")
         return redirect(url_for('main.session_details', session_id=session_id))
+    else:
+        print("Form did not validate!", form.errors)
     
     exercises = ExerciseLog.query.filter_by(session_id=session_id).all()
     return render_template('session_details.html', form=form, session=session, exercises=exercises)
@@ -183,40 +190,45 @@ def exercise_details(exercise_id):
     if form.validate_on_submit():
         media = form.media.data 
         filename = secure_filename(f"{exercise_id}_{int(time.time())}_{media.filename}")
+        bucketExercise = 'exercise-media' # Bucket for exercise media 
         
         # Determine the media type 
+        media_data = media.read()
         media_type = 'photo' if media.filename.lower().endswith(('jpg', 'jpeg', 'png')) else 'video'
         
-        # Create upload_folder if it does not exist
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'exercises', f'user_{current_user.id}')
-        if not os.path.exists(upload_folder):
-            os.makedirs(upload_folder)
+        headers = {
+            "apikey": SUPABASE_API_KEY,
+            "Authorization": f"Bearer {SUPABASE_API_KEY}",
+            "Content-Type": "application/octet-stream"
+        }
         
-        # Save the media file 
-        media_path = os.path.join(upload_folder, filename)
-        media.save(media_path)
+        upload_url = f"{SUPABASE_URL}/storage/v1/object/{bucketExercise}/user_{current_user.id}/{filename}"
+        response = requests.post(upload_url, headers=headers, data=media_data)
         
-        new_media = ExerciseMedia(
-            exercise_id=exercise_id,
-            filename=filename,
-            media_type=media_type,
-            notes=form.notes.data
-        )
+        if response.status_code in (200, 201):
+            new_media = ExerciseMedia(
+                exercise_id=exercise_id,
+                filename=filename,
+                media_type=media_type,
+                notes=form.notes.data
+            )
+            db.session.add(new_media)
+            db.session.commit()
+            flash("Media uploaded successfully!", "success")
+        else:
+            flash('Failed to upload media to Supabase.', 'danger')
+            print(response.text)
+            print("Upload Error Code:", response.status_code)
         
-        db.session.add(new_media)
-        db.session.commit()
-        
-        flash("Media uploaded successfully!", "success")
         return redirect(url_for('main.exercise_details', exercise_id=exercise_id))
     
     media_files = ExerciseMedia.query.filter_by(exercise_id=exercise_id).order_by(ExerciseMedia.upload_date.desc()).all()
-    
     return render_template('exercise_details.html', form=form, exercise=exercise, media_files=media_files)
 
-@main.route('/exercise_media/<filename>')
-@login_required
-def exercise_media(filename):
-    return send_from_directory(os.path.join(current_app.config['UPLOADED_EXERCISES_DEST'], f'user_{current_user.id}'), filename)
+# @main.route('/exercise_media/<filename>')
+# @login_required
+# def exercise_media(filename):
+#     return send_from_directory(os.path.join(current_app.config['UPLOADED_EXERCISES_DEST'], f'user_{current_user.id}'), filename)
 
 @main.route('/delete_media/<int:media_id>/<int:exercise_id>', methods=['POST'])
 @login_required
@@ -230,17 +242,27 @@ def delete_media(media_id, exercise_id):
         return redirect(url_for('main.dashboard'))
     
     try:
-        media_path = os.path.join(current_app.config['UPLOADED_EXERCISES_DEST'], f'user_{current_user.id}', media.filename)
-        if os.path.exists(media_path):
-            os.remove(media_path)
-        else:
-            flash("File not found on server.", "warning")
+        supabase_url = os.getenv('SUPABASE_URL')
+        supabase_api_key = os.getenv('SUPABASE_API_KEY')
+        bucket = "exercise-media"
         
+        delete_url = f"{supabase_url}/storage/v1/object/{bucket}/user_{current_user.id}/{media.filename}"
+        
+        headers = {
+            "apikey": supabase_api_key,
+            "Authorization": f"Bearer {supabase_api_key}",
+        }
+        
+        response = requests.delete(delete_url, headers=headers)
+        
+        if response.status_code not in (200, 204):
+            print(f"Failed to delete file from Supabase: {response.text}")
+            
         db.session.delete(media)
         db.session.commit()
         flash("Media deleted successfully!", "success")
     except Exception as e:
-        flash(f"An error occured: {str(e)}", "danger")
+        flash(f"An error occured:  {str(e)}", "danger")
         
     return redirect(url_for('main.exercise_details', exercise_id=exercise_id))
 
@@ -296,22 +318,29 @@ def progressphotos():
     
     if form.validate_on_submit():
         photo = form.photo.data # Getting the photo data from the form
-        filename = secure_filename(photo.filename) # Generate a secure filename
+        filename = secure_filename(f"user_{current_user.id}_{int(time.time())}_{photo.filename}") # Generate file name based on user_id, time, photo.filename
+        bucketStore = 'progress-photos' # Supabase bucket 
         
-        upload_folder = os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], f'user_{current_user.id}') # Defining the upload folder
+        photo_data = photo.read() # Read the photo as bytes 
         
-        if not os.path.exists(upload_folder): # If folder does not exist, create it
-            os.makedirs(upload_folder)
+        headers = {
+            "apikey": SUPABASE_API_KEY,
+            "Authorization": f"Bearer {SUPABASE_API_KEY}",
+            "Content-Type": "application/octet-stream"
+        }
         
-        photo_path = os.path.join(upload_folder, filename)
-        photo.save(photo_path)
+        upload_url = f"{SUPABASE_URL}/storage/v1/object/{bucketStore}/user_{current_user.id}/{filename}"
+        response = requests.put(upload_url, headers=headers, data=photo_data)
         
-        # Create a new photo record and assign it to the current user 
-        new_photo = Photo(user_id=current_user.id, filename=filename)
-        db.session.add(new_photo)
-        db.session.commit()
+        if response.status_code in (200, 201):
+            new_photo = Photo(user_id=current_user.id, filename=filename)
+            db.session.add(new_photo)
+            db.session.commit()
+            flash('Photo uploaded successfully!', 'success')
+        else:
+            flash('Failed to upload photot to Supabase.', 'danger')
+            print(response.text)
         
-        flash('Photo uploaded successfully!', 'success')
         return redirect(url_for('main.progressphotos'))
     
     photos_list = Photo.query.filter_by(user_id=current_user.id).all()
@@ -341,10 +370,10 @@ def delete_photo(photo_id):
     
     return redirect(url_for('main.progressphotos'))
 
-@main.route('/uploaded_photo/<filename>')
-def uploaded_photo(filename):
-    # Serve the photo from the UPLOADED_PHOTOS_DEST folder (static/uploads)
-    return send_from_directory(os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], f'user_{current_user.id}'), filename)
+# @main.route('/uploaded_photo/<filename>')
+# def uploaded_photo(filename):
+#     # Serve the photo from the UPLOADED_PHOTOS_DEST folder (static/uploads)
+#     return send_from_directory(os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], f'user_{current_user.id}'), filename)
 
 @main.route('/notes', methods=['GET', 'POST'])
 @login_required

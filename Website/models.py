@@ -7,7 +7,7 @@ class User(db.Model, UserMixin): #Table for db
     id = db.Column(db.Integer, primary_key=True) #Identity for user
     username = db.Column(db.String(20), nullable=False, unique=True) #Username, 20 character limit, cannot be empty 
     email = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False) #Password, 80 character limit, cannot be empty
+    password = db.Column(db.Text, nullable=False) #Password, 80 character limit, cannot be empty
     created_at = db.Column(db.DateTime, default=datetime.today)
     
     # Settings fields 

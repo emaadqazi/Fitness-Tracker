@@ -31,10 +31,16 @@
             <form method="POST">
                 {{ form.hidden_tag() }}
                 <div class="row">
-                    <div class="col-md-12 mb-3">
+                    <div class="col-md-6 mb-3">
                         {{ form.exercise.label }}
                         {{ form.exercise(class="form-control") }}
                     </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.exercise_type.label }}
+                        {{ form.exercise_type(class="form-control") }}
+                    </div>
+                
                     <div class="col-md-3 mb-3">
                         {{ form.sets.label }}
                         {{ form.sets(class="form-control") }}

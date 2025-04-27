@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: fitness-tracker
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: "gunicorn main:app"
+    envVars:
+      - key: SUPABASE_URL
+        value: your_supabase_url_here
+      - key: SUPABASE_API_KEY
+        value: your_supabase_api_key_here
+      - key: DATABASE_URL
+        value: your_database_connection_string_here
+      - key: SECRET_KEY
+        value: your_secret_key_here

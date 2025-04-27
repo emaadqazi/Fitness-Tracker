@@ -42,7 +42,7 @@ class WorkoutLog(FlaskForm):
         ('cardio', 'Cardio'),
         ('flexibility', 'Flexibility'),
         ('hiit', 'HIIT')
-    ], validators=[InputRequired()])
+    ], default='strength', validators=[InputRequired()])
     sets = IntegerField('Sets: ', validators=[InputRequired()])
     reps = IntegerField('Reps: ', validators=[InputRequired()])
     weight = FloatField('Weight (lbs): ', validators=[InputRequired()]) #Need to implement toggle feature between lbs/kg
