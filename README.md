@@ -6,6 +6,8 @@
 ![Flask](https://img.shields.io/badge/flask-2.0+-green.svg)
 ![Last Commit](https://img.shields.io/github/last-commit/emaadq/Fitness-Tracker)
 
+Access: https://fitness-tracker-ezp6.onrender.com
+
 ## **Why I Built This**
 I created this **Fitness Tracker** to explore new technologies while working on something I’m passionate about—fitness. As a fitness fanatic, I wanted a project that would not only improve my programming and application development skills but also allow me to experiment with features I wish existed in popular fitness apps today.
 
