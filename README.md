@@ -13,8 +13,6 @@ I built this project in my second year of university to further develop my progr
 
 While this is a full-stack, web-based application, my primary focus was on backend development and data management. I integrated Supabase as the backend service, enabling secure cloud-based storage for both user data and media uploads. This structure ensures that all content is efficiently organized and scalable for future enhancements.
 
----
-A
 ## Here are some screenshots of the application
 
 ### **Home Page**
