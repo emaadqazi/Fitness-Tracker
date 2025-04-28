@@ -77,14 +77,14 @@ cd Fitness-Tracker
 ``` bash
 python -m venv venv
 ```
-If you are on windows, use:
-``` bash
-venv\Scripts\Activate
-```
-If you are MacOS, use:
-``` bash
-source venv\bin\activate
-```
+  If you are on windows, use:
+  ``` bash
+  venv\Scripts\Activate
+  ```
+  If you are MacOS, use:
+  ``` bash
+  source venv\bin\activate
+  ```
 
 4. Install relevant dependencies
 ``` bash
