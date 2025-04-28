@@ -1,101 +1,236 @@
 {% extends "base.html" %}
 
-{% block content %}
-<h1 class="mb-4" style="font-size: 2.2rem;">Dashboard</h1>
-
-<div class="content-box" style="transform: scale(0.9); transform-origin: top center; margin-bottom: 1.5rem;">
-    <div class="mb-3">
-        <h3 style="font-size: 1.3rem;">Create New Workout Session</h3>
-        <hr class="mb-3" style="border-color: rgba(255, 255, 255, 0.1);">
-    </div>
-    
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="mb-3">
-            {{ form.title.label(class="form-label", style="font-size: 0.9rem;") }}
-            {{ form.title(class="form-control", placeholder="E.g., Morning Run, Upper Body, Leg Day") }}
-        </div>
-        <div class="mb-3">
-            {{ form.feeling_before.label(class="form-label", style="font-size: 0.9rem;") }}
-            {{ form.feeling_before(class="form-control", min=1, max=10, placeholder="Rate from 1-10") }}
-        </div>
-        <div class="mb-3">
-            {{ form.notes.label(class="form-label", style="font-size: 0.9rem;") }}
-            {{ form.notes(class="form-control", placeholder="Add any notes about this session", rows=3) }}
-        </div>
-        <div class="text-center mt-4">
-            {{ form.submit(class="btn btn-action", value="Create Session", style="padding: 0.6rem 1.8rem; font-size: 0.9rem;") }}
-        </div>
-    </form>
-</div>
-
-<div class="content-box" style="transform: scale(0.9); transform-origin: top center;">
-    <div class="mb-3">
-        <h3 style="font-size: 1.3rem;">Previous Sessions</h3>
-        <hr class="mb-3" style="border-color: rgba(255, 255, 255, 0.1);">
-    </div>
-    
-    {% if sessions %}
-        <div class="session-list">
-            {% for session in sessions %}
-                <div class="session-item mb-3">
-                    <a href="{{ url_for('main.session_details', session_id=session.id) }}" class="text-decoration-none">
-                        <div class="p-3 rounded" style="background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-2" style="font-size: 1.1rem;">{{ session.title }}</h5>
-                                <small class="text-light opacity-75" style="font-size: 0.8rem;">{{ session.date.strftime('%Y-%m-%d %H:%M') }}</small>
-                            </div>
-                            <p class="mb-1" style="font-size: 0.85rem;">Feeling before: {{ session.feeling_before }}/10
-                            {% if session.feeling_after %}
-                                | Feeling after: {{ session.feeling_after }}/10
-                            {% endif %}
-                            </p>
-                            <small class="text-light opacity-75" style="font-size: 0.8rem;">{{ session.exercises|length }} exercises logged</small>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="text-center p-4 rounded" style="border: 1px dashed rgba(255, 255, 255, 0.2);">
-            <i class="bi bi-activity mb-2" style="font-size: 1.8rem;"></i>
-            <p class="mb-0" style="font-size: 0.9rem;">No workout sessions yet. Create your first one!</p>
-        </div>
-    {% endif %}
-</div>
-{% endblock %}
+{% block title %}Dashboard - Fitness Tracker{% endblock %}
 
 {% block additional_styles %}
 <style>
-    .session-item a:hover div {
-        background-color: rgba(0, 0, 0, 0.5) !important;
-        border-color: rgba(255, 255, 255, 0.3) !important;
+    /* Glowing title styling to match landing page */
+    .glowing-title {
+        font-size: 4rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2rem;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                     0 0 20px rgba(255, 255, 255, 0.3),
+                     0 0 30px rgba(255, 255, 255, 0.1);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    
+    /* Feeling rating buttons */
+    .rating-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .rating-btn {
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Roboto Mono', monospace;
+    }
+    
+    .rating-btn:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+    
+    .rating-btn.active {
+        background-color: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        border-color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* Session cards styling */
+    .session-card {
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+    }
+    
+    .session-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
     }
     
-    .content-box {
-        background-color: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(5px);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 1.3rem;
+    .session-card h4 {
+        font-size: 1.5rem;
+        margin-bottom: 0.2rem;
+        color: white;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        flex: 1;
+    }
+    
+    .session-indicator {
+        width: 8px;
+        height: 50px;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+        border-radius: 4px;
+        margin-right: 15px;
+    }
+    
+    /* Create session button glow effect */
+    .btn-create-session {
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        margin: 1rem auto;
+        display: block;
+    }
+    
+    .btn-create-session:hover {
+        background-color: rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
+                    0 0 40px rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    /* Hidden rating input */
+    #feeling-rating {
+        display: none;
+    }
+    
+    /* Welcome message styling */
+    .welcome-message {
+        margin-top: 0.75rem;
         margin-bottom: 1.5rem;
-        position: relative;
-        overflow: hidden;
-        width: 90%;
-        margin-left: auto;
-        margin-right: auto;
     }
     
-    .content-box::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+    .user-greeting {
+        font-size: 3.1rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                     0 0 20px rgba(255, 255, 255, 0.3),
+                     0 0 30px rgba(255, 255, 255, 0.1);
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+    }
+    
+    .date-info {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-top: 0.5rem;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Center content in container */
+    .centered-container {
+        max-width: 800px;
+        margin: 0 auto;
     }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="centered-container">
+    <div class="welcome-message text-center mb-4">
+        <h1 class="user-greeting">Hello {{ current_user.display_name if current_user.display_name else current_user.username }}!</h1>
+        <p class="date-info">It is currently {{ now.strftime('%A, %B %d, %Y, %I:%M %p') }}. GREAT TIME TO WORKOUT!</p>
+    </div>
+    
+    <div class="content-box">
+        <h3 class="mb-4">Create New Workout Session</h3>
+        
+        <form method="POST" action="{{ url_for('main.dashboard') }}">
+            {{ form.csrf_token() }}
+            
+            <div class="mb-3">
+                <label for="session_title" class="form-label">Session Title</label>
+                <input type="text" class="form-control" id="session_title" name="title" 
+                       placeholder="E.g., Morning Run, Upper Body, Leg Day" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">How did you feel before (1-10)?</label>
+                <input type="hidden" id="feeling-rating" name="feeling_before" value="">
+                
+                <div class="rating-buttons">
+                    {% for i in range(11) %}
+                    <div class="rating-btn" data-value="{{ i }}">{{ i }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="session_notes" class="form-label">Session Notes</label>
+                <textarea class="form-control" id="session_notes" name="notes" rows="3" 
+                          placeholder="Add any notes about this session"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-create-session">Create Session</button>
+        </form>
+    </div>
+    
+    <div class="content-box">
+        <h3 class="mb-4">Previous Sessions</h3>
+        
+        {% if sessions %}
+            {% for session in sessions %}
+            <div class="session-card" onclick="window.location.href='{{ url_for('main.session_details', session_id=session.id) }}'">
+                <div class="session-indicator"></div>
+                <h4>{{ session.title }}</h4>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-muted">No previous sessions found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rating buttons functionality
+        const ratingButtons = document.querySelectorAll('.rating-btn');
+        const ratingInput = document.getElementById('feeling-rating');
+        
+        ratingButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                ratingButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update hidden input value
+                ratingInput.value = this.dataset.value;
+            });
+        });
+    });
+</script>
 {% endblock %}

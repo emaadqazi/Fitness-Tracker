@@ -1,26 +1,287 @@
 {% extends "base.html" %}
 
-{% block title %}Weight Log{% endblock %}
+{% block title %}Weight Log - Fitness Tracker{% endblock %}
+
+{% block additional_styles %}
+<style>
+    /* Glowing title styling to match landing page */
+    .user-greeting {
+        font-size: 3.1rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                     0 0 20px rgba(255, 255, 255, 0.3),
+                     0 0 30px rgba(255, 255, 255, 0.1);
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+        text-align: center;
+    }
+    
+    .welcome-message {
+        margin-top: 0.75rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    /* Centered content layout */
+    .centered-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    /* Weight logs styling */
+    .weight-logs {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .weight-log-item {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.5rem;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .weight-log-item:hover {
+        transform: translateY(-2px);
+        background-color: rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+    
+    .weight-date {
+        width: 150px;
+        font-family: 'Roboto Mono', monospace;
+    }
+    
+    .weight-value {
+        flex: 1;
+        text-align: right;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: white;
+    }
+    
+    /* Weight input form styling */
+    .weight-form {
+        margin-bottom: 2rem;
+    }
+    
+    .weight-input-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .weight-input {
+        flex: 1;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        font-family: 'Roboto Mono', monospace;
+        letter-spacing: 0.5px;
+    }
+    
+    .unit-toggle {
+        display: flex;
+        margin-left: 1rem;
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        overflow: hidden;
+    }
+    
+    .unit-btn {
+        background-color: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .unit-btn.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+    
+    .btn-log-weight {
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        display: block;
+        margin: 1rem 0;
+    }
+    
+    .btn-log-weight:hover {
+        background-color: rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
+                    0 0 40px rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    /* Weight trend indicator */
+    .trend-indicator {
+        display: inline-block;
+        margin-left: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .trend-up {
+        color: #ff4757;
+    }
+    
+    .trend-down {
+        color: #2ed573;
+    }
+    
+    .trend-same {
+        color: #747d8c;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <h2>Log Your Weight</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.weight.label(class="form-control-label") }}
-            {{ form.weight(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ form.submit(class="btn btn-primary") }}
-        </div>
-    </form>
+<div class="centered-container">
+    <div class="welcome-message">
+        <h1 class="user-greeting">Log Your Weight</h1>
+    </div>
+    
+    <div class="content-box">
+        <form method="POST" action="{{ url_for('main.weightlog') }}" class="weight-form">
+            {{ form.csrf_token() }}
+            
+            <div class="weight-input-group">
+                <input type="text" id="weight-input" name="weight" class="form-control weight-input" placeholder="Enter your weight" inputmode="decimal" required>
+                
+                <div class="unit-toggle">
+                    <button type="button" class="unit-btn active" data-unit="lbs" id="lbs-btn">lbs</button>
+                    <button type="button" class="unit-btn" data-unit="kg" id="kg-btn">kg</button>
+                </div>
+            </div>
+            
+            <input type="hidden" id="weight-unit" name="unit" value="lbs">
+            <input type="hidden" id="converted-weight" name="converted_weight" value="">
+            
+            <button type="submit" class="btn btn-log-weight">Log Weight</button>
+        </form>
+    </div>
+    
+    <div class="content-box">
+        <h3 class="mb-4">Previous Weight Logs</h3>
+        
+        {% if logs %}
+            <ul class="weight-logs">
+                {% for log in logs %}
+                <li class="weight-log-item">
+                    <div class="weight-date">{{ log.date.strftime('%Y-%m-%d') }}</div>
+                    <div class="weight-value">
+                        <span class="weight-number" data-weight="{{ log.weight }}">{{ "%.1f"|format(log.weight) }}</span>
+                        <span class="weight-unit-display">lbs</span>
+                        
+                        {% if loop.index < logs|length %}
+                            {% set prev_weight = logs[loop.index].weight %}
+                            {% if log.weight > prev_weight %}
+                                <span class="trend-indicator trend-up"><i class="bi bi-arrow-up"></i> {{ "%.1f"|format(log.weight - prev_weight) }}</span>
+                            {% elif log.weight < prev_weight %}
+                                <span class="trend-indicator trend-down"><i class="bi bi-arrow-down"></i> {{ "%.1f"|format(prev_weight - log.weight) }}</span>
+                            {% else %}
+                                <span class="trend-indicator trend-same"><i class="bi bi-dash"></i> 0.0</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-center text-muted">No weight logs found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
 
-    <h3>Previous Weight Logs</h3>
-    <ul>
-        {% for log in logs %}
-            <li>
-                <strong>{{ log.date.strftime('%Y-%m-%d') }}</strong>: {{ log.weight }} lbs
-            </li>
-        {% endfor %}
-    </ul>
+{% block additional_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const weightInput = document.getElementById('weight-input');
+        const lbsBtn = document.getElementById('lbs-btn');
+        const kgBtn = document.getElementById('kg-btn');
+        const weightUnit = document.getElementById('weight-unit');
+        const convertedWeight = document.getElementById('converted-weight');
+        const weightNumberElements = document.querySelectorAll('.weight-number');
+        const weightUnitDisplayElements = document.querySelectorAll('.weight-unit-display');
+        
+        // Handle unit toggle buttons
+        lbsBtn.addEventListener('click', function() {
+            setActiveUnit('lbs');
+        });
+        
+        kgBtn.addEventListener('click', function() {
+            setActiveUnit('kg');
+        });
+        
+        function setActiveUnit(unit) {
+            // Update active button state
+            if (unit === 'lbs') {
+                lbsBtn.classList.add('active');
+                kgBtn.classList.remove('active');
+            } else {
+                kgBtn.classList.add('active');
+                lbsBtn.classList.remove('active');
+            }
+            
+            // Update hidden unit field
+            weightUnit.value = unit;
+            
+            // Convert displayed weights
+            weightUnitDisplayElements.forEach(el => {
+                el.textContent = unit;
+            });
+            
+            weightNumberElements.forEach(el => {
+                const originalWeight = parseFloat(el.dataset.weight);
+                if (unit === 'kg') {
+                    // Convert from lbs to kg
+                    el.textContent = (originalWeight * 0.453592).toFixed(1);
+                } else {
+                    // Show original weight in lbs
+                    el.textContent = originalWeight.toFixed(1);
+                }
+            });
+        }
+        
+        // When form submits, calculate the converted weight
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const inputValue = parseFloat(weightInput.value);
+            const unit = weightUnit.value;
+            
+            if (!isNaN(inputValue)) {
+                // Always store weight in lbs in the database
+                if (unit === 'kg') {
+                    // Convert kg to lbs
+                    convertedWeight.value = (inputValue / 0.453592).toFixed(1);
+                } else {
+                    convertedWeight.value = inputValue.toFixed(1);
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

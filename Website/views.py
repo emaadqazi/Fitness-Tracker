@@ -103,7 +103,8 @@ def dashboard():
         return(redirect(url_for('main.dashboard')))
     
     sessions = Session.query.filter_by(user_id=current_user.id,).order_by(Session.date.desc()).all()
-    return render_template('dashboard.html', sessions=sessions, form=form)
+    now = datetime.datetime.now()
+    return render_template('dashboard.html', sessions=sessions, form=form, now=now)
 
 @main.route('/session_details/<int:session_id>', methods=['GET', 'POST'])
 @login_required
@@ -300,15 +301,19 @@ def weightlog():
     form = WeightLogForm()
     
     if form.validate_on_submit():
-        new_weight_log = WeightLog(user_id=current_user.id, weight=form.weight.data)
+        weight = form.weight.data; # Get the weight data from the form 
+        converted_weight = request.form.get('converted_weight') # Incase they inputting into kg instaed of lbs
+        if converted_weight and request.form.get('unit') == 'kg': # If they entered kg instead
+            weight = float(converted_weight)
+            
+        new_weight_log = WeightLog(user_id=current_user.id, weight=weight)
         db.session.add(new_weight_log)
         db.session.commit()
-        flash("Weight logged successfully!", "success")
         return redirect(url_for('main.weightlog'))
     
     # Filters WeightLog table and retrieves records where user_id matches current_user.id
     # .all() finds ALL entries associated with x user; logs will reflect these in the .html page
-    logs = WeightLog.query.filter_by(user_id=current_user.id).all()
+    logs = WeightLog.query.filter_by(user_id=current_user.id).order_by(WeightLog.date.desc()).all()
     return render_template('weight_log.html', form=form, logs=logs)
 
 @main.route('/progressphotos', methods=['GET', 'POST'])
@@ -336,7 +341,7 @@ def progressphotos():
             new_photo = Photo(user_id=current_user.id, filename=filename)
             db.session.add(new_photo)
             db.session.commit()
-            flash('Photo uploaded successfully!', 'success')
+            # flash('Photo uploaded successfully!', 'success')
         else:
             flash('Failed to upload photot to Supabase.', 'danger')
             print(response.text)
@@ -356,17 +361,30 @@ def delete_photo(photo_id):
         return redirect(url_for('main.progressphotos'))
     
     try:
-        photo_path = os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], f'user_{current_user.id}', photo.filename)
-        if os.path.exists(photo_path):
-            os.remove(photo_path)
-            flash('Photo deleted successfully', 'success')
-        else:
-            flash('Photo not found!', 'danger')
-    except Exception as e:
-        flash(f'An error occurred: {str(e)}', 'danger')
+        supabase_url = os.getenv('SUPABASE_URL')
+        supabase_api_key = os.getenv('SUPABASE_API_KEY')
+        bucket = 'progress-photos'
         
-    db.session.delete(photo)  # Delete from database
-    db.session.commit()
+        delete_url = f"{supabase_url}/storage/v1/object/{bucket}/user_{current_user.id}/{photo.filename}" # Create the delete URL
+        headers = {
+            "apikey": supabase_api_key,
+            "Authorization": f"Bearer {supabase_api_key}",
+        }
+        
+        response = requests.delete(delete_url, headers=headers)
+        
+        if response.status_code not in (200, 204):
+            print(f"Failed to delete file from Supabase: {response.text}")
+            flash('Failed to delete photo from storage.', 'danger')
+            return redirect(url_for('main.progressphotos'))
+        
+        db.session.delete(photo)
+        db.session.commit()
+        
+    except Exception as e:
+        # Catch and log any unexpected errors
+        print(f"An error occurred: {str(e)}")
+        flash(f'An error occurred: {str(e)}', 'danger')
     
     return redirect(url_for('main.progressphotos'))
 
@@ -407,7 +425,7 @@ def create_note():
     
     db.session.add(new_note)
     db.session.commit()
-    flash("Note created successfully!", "success")
+    # flash("Note created successfully!", "success")
     return redirect(url_for('main.notes'))
 
 @main.route('/edit_note/<int:note_id>', methods=['GET', 'POST'])
@@ -443,7 +461,7 @@ def delete_note(note_id):
     
     db.session.delete(note)
     db.session.commit()
-    flash("Note deleted successfully!", "success")
+    # flash("Note deleted successfully!", "success")
     return redirect(url_for('main.notes'))
 
 
