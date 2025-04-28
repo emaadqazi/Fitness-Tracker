@@ -1,54 +1,101 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>Dashboard</h1>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3>Create New Workout Session</h3>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                {{ form.hidden_tag() }}
-                <div class="form-group">
-                    {{ form.title.label }}
-                    {{ form.title(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.feeling_before.label }}
-                    {{ form.feeling_before(class="form-control", min=1, max=10) }}
-                </div>
-                <div class="form-group">
-                    {{ form.notes.label }}
-                    {{ form.notes(class="form-control") }}
-                </div>
-                <div class="mt-3">
-                    {{ form.submit(class="btn btn-primary") }}
-                </div>
-            </form>
-        </div>
+<h1 class="mb-4" style="font-size: 2.2rem;">Dashboard</h1>
+
+<div class="content-box" style="transform: scale(0.9); transform-origin: top center; margin-bottom: 1.5rem;">
+    <div class="mb-3">
+        <h3 style="font-size: 1.3rem;">Create New Workout Session</h3>
+        <hr class="mb-3" style="border-color: rgba(255, 255, 255, 0.1);">
     </div>
     
-    <h2>Previous Sessions</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.title.label(class="form-label", style="font-size: 0.9rem;") }}
+            {{ form.title(class="form-control", placeholder="E.g., Morning Run, Upper Body, Leg Day") }}
+        </div>
+        <div class="mb-3">
+            {{ form.feeling_before.label(class="form-label", style="font-size: 0.9rem;") }}
+            {{ form.feeling_before(class="form-control", min=1, max=10, placeholder="Rate from 1-10") }}
+        </div>
+        <div class="mb-3">
+            {{ form.notes.label(class="form-label", style="font-size: 0.9rem;") }}
+            {{ form.notes(class="form-control", placeholder="Add any notes about this session", rows=3) }}
+        </div>
+        <div class="text-center mt-4">
+            {{ form.submit(class="btn btn-action", value="Create Session", style="padding: 0.6rem 1.8rem; font-size: 0.9rem;") }}
+        </div>
+    </form>
+</div>
+
+<div class="content-box" style="transform: scale(0.9); transform-origin: top center;">
+    <div class="mb-3">
+        <h3 style="font-size: 1.3rem;">Previous Sessions</h3>
+        <hr class="mb-3" style="border-color: rgba(255, 255, 255, 0.1);">
+    </div>
+    
     {% if sessions %}
-        <div class="list-group">
+        <div class="session-list">
             {% for session in sessions %}
-                <a href="{{ url_for('main.session_details', session_id=session.id) }}" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">{{ session.title }}</h5>
-                        <small>{{ session.date.strftime('%Y-%m-%d %H:%M') }}</small>
-                    </div>
-                    <p class="mb-1">Feeling before: {{ session.feeling_before }}/10</p>
-                    {% if session.feeling_after %}
-                        <p class="mb-1">Feeling after: {{ session.feeling_after }}/10</p>
-                    {% endif %}
-                    <small>{{ session.exercises|length }} exercises logged</small>
-                </a>
+                <div class="session-item mb-3">
+                    <a href="{{ url_for('main.session_details', session_id=session.id) }}" class="text-decoration-none">
+                        <div class="p-3 rounded" style="background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-2" style="font-size: 1.1rem;">{{ session.title }}</h5>
+                                <small class="text-light opacity-75" style="font-size: 0.8rem;">{{ session.date.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1" style="font-size: 0.85rem;">Feeling before: {{ session.feeling_before }}/10
+                            {% if session.feeling_after %}
+                                | Feeling after: {{ session.feeling_after }}/10
+                            {% endif %}
+                            </p>
+                            <small class="text-light opacity-75" style="font-size: 0.8rem;">{{ session.exercises|length }} exercises logged</small>
+                        </div>
+                    </a>
+                </div>
             {% endfor %}
         </div>
     {% else %}
-        <p>No workout sessions yet. Create your first one!</p>
+        <div class="text-center p-4 rounded" style="border: 1px dashed rgba(255, 255, 255, 0.2);">
+            <i class="bi bi-activity mb-2" style="font-size: 1.8rem;"></i>
+            <p class="mb-0" style="font-size: 0.9rem;">No workout sessions yet. Create your first one!</p>
+        </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .session-item a:hover div {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .content-box {
+        background-color: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(5px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.3rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .content-box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+    }
+</style>
 {% endblock %}

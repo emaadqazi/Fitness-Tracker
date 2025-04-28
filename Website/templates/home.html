@@ -1,15 +1,238 @@
-{% extends "base.html" %}
-
-{% block title %}Home - Fitness Tracker{% endblock %}
-
-{% block content %}
-<div class="container text-center mt-5">
-    <h1 class="display-4">Welcome to the Fitness Tracker!</h1>
-    <p class="lead">Track your workouts and progress easily.</p>
-
-    <div class="mt-4">
-        <a href="{{ url_for('main.login') }}" class="btn btn-primary btn-lg">Login</a>
-        <a href="{{ url_for('main.register') }}" class="btn btn-success btn-lg">Register</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker - Your Personal Workout Companion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        .hero-section {
+            height: 100vh;
+            width: 100%;
+            background: radial-gradient(circle at center, 
+                          rgba(0, 0, 0, 0.2) 0%, 
+                          rgba(0, 0, 0, 0.4) 100%), 
+                       url("{{ url_for('static', filename='img/fitness-background.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+        }
+        
+        .hero-section::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+        }
+        
+        .content-container {
+            max-width: 900px;
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+        
+        .content-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .features-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-card {
+            width: 170px;
+            padding: 1.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+            color: white;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+        
+        .feature-text {
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-text {
+            color: rgba(255, 255, 255, 0.95);
+        }
+        
+        .cta-buttons {
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            border-radius: 50px;
+            padding: 0.8rem 2.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+        
+        .btn-action {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-action:hover {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .features-grid {
+                gap: 1.5rem;
+            }
+            
+            .feature-card {
+                width: 140px;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 12px 0;
+            }
+            
+            .content-container {
+                padding: 1.5rem;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <div class="content-container">
+            <h1>Achieve Your Fitness Goals</h1>
+            <p class="subtitle">Track workouts, monitor progress, and stay motivated with our comprehensive fitness tracking solution.</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="feature-text">Log daily workouts</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="feature-text">Track weight progress</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <div class="feature-text">Store progress photos</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                    <div class="feature-text">Keep workout notes</div>
+                </div>
+            </div>
+            
+            <div class="cta-buttons">
+                <a href="{{ url_for('main.login') }}" class="btn btn-action">
+                    Login
+                </a>
+                <a href="{{ url_for('main.register') }}" class="btn btn-action">
+                    Register
+                </a>
+            </div>
+        </div>
     </div>
-</div>
-{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
