@@ -32,10 +32,12 @@ The updated Login page continues the minimalist and professional theme, providin
 The updated Dashboard provides users with a streamlined experience to log and track their workout sessions. The welcoming header and real-time date and time create a personalized feel, while the minimalist session creation form allows users to quickly input workout details and rate their session. Below, previous sessions are displayed in a clean, expandable format for easy access and review, enhancing both usability and long-term tracking.
 
 ### **Creating a new Session**
-![Creating Session UI](screenshots/CreateSessionFlash.png)
+![Creating Session UI](screenshots/NEWCreatingSession.png)
+The Create Session page allows users to quickly log a new workout with a custom title, mood rating (1–10), and optional session notes. The intuitive circular rating selector and clean input fields make the logging process fast and engaging. Once submitted, the session appears in the "Previous Sessions" section below, ensuring users can easily monitor and reflect on past workouts in a visually consistent and accessible layout.
 
 ### **Editing Exercises within a session**
-![Exercise Editing UI](screenshots/SessionExerciseEditing.png)
+![Exercise Editing UI](screenshots/NEWEditingSessions.png)
+The Editing Session page offers users a detailed view of a specific workout session, with options to update their initial and post-workout mood ratings, edit session notes, and log individual exercises. The form allows users to input exercise name, sets, reps, weight, and RPE (Rate of Perceived Exertion), which are displayed in a structured table below for easy tracking. This layout promotes quick edits and ongoing progress monitoring, making the session page both functional and user-friendly.
 
 ### **Logging your weight**
 ![Weight Log UI](screenshots/NEWWeightLogPage.png)
