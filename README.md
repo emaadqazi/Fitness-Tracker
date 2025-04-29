@@ -54,8 +54,30 @@ The Exercise Media Upload page allows users to attach visual content to individu
 ![Updating post-workout feelings](screenshots/NEWUpdatingPostWorkout.png)
 This modal allows users to rate how they felt after completing a workout session on a scale from 1 to 10. It promotes reflection and helps track trends in energy, motivation, or recovery over time, adding a personalized and mindful touch to workout logging.
 
-### **Deleting media within exercises**
-![Deleting exercise media](screenshots/ExerciseMediaDeleteFunction.png)
+### **Progress Photos Page**
+![Progress Photos](screenshots/NEWProgressPhoto.png)
+The Progress Photos page enables users to visually document their fitness journey by uploading personal photos. The upload form is simple and intuitive, and all added images are displayed in a neatly organized gallery. Each photo can be easily deleted, giving users control over their visual progress tracking in a private, user-friendly environment.
+
+### **Notes Page**
+![Uploading Notes](screenshots/NEWNotesPage.png)
+The Notes page allows users to document reflections, thoughts, or motivational moments throughout their fitness journey. Each note can be tagged and optionally linked to a specific workout session, creating a synchronized record that blends mental and physical progress. With built-in search, filtering by session or tag, and intuitive note creation, this feature encourages self-awareness and consistency in both workouts and mindset.
+
+### **Challenges Page**
+![Challenges](screenshots/NEWChallengesPage.png)
+The Fitness Challenges page encourages goal-setting by allowing users to create and track personalized challenges, such as hitting the gym multiple times a week. Each challenge can be customized with unique goals, durations, badges, and progress tracking. Filter options and motivational tags like “Daily” or “Consistency” keep users focused and engaged throughout their fitness journey.
+
+### **Creating Challenges Page**
+![Creating a challenge](screenshots/NEWCreateChallenge.png)
+The Create Challenge page empowers users to build personalized fitness goals tailored to their routines and preferences. Users can define challenge details such as type, category, metric, goal value, difficulty level, and duration. Custom achievement badges and point values gamify the experience, making it engaging and rewarding. This flexibility supports a wide range of challenge types—from daily strength tasks to long-term endurance goals—enhancing motivation and accountability.
+
+### **Viewing your Challenges**
+![Viewing your challenge](screenshots/NEWViewingChallenges.png)
+The Challenge Progress View lets users track their advancement toward active fitness goals in real time. Each challenge displays the current progress, target duration, badge earned, and associated point tally. The “Update Progress” feature allows users to log daily activity, helping maintain accountability and visualize consistency through an interactive progress bar and detailed milestone breakdown.
+
+### **Updating Progress on Challenges**
+![Updating Progress on Challenge](screenshots/NEWUpdatingProgressOnChallenges.png)
+The Update Challenge Progress page lets users manually track their advancement toward a goal by inputting completed days or units. A progress bar visually reflects how close they are to completion, alongside contextual info like the goal target and deadline. This simple interface supports habit-building and helps users stay accountable to their ongoing challenges.
+
 ---
 
 ## ⚡ Technologies Used
