@@ -135,26 +135,22 @@ def session_details(session_id):
     
     exercises = ExerciseLog.query.filter_by(session_id=session_id).all()
     return render_template('session_details.html', form=form, session=session, exercises=exercises)
-        
+
+@main.route('/update_session_notes/<int:session_id>', methods=['POST'])
+def update_session_notes(session_id):
+    notes = request.form.get('notes')
+    session = Session.query.get_or_404(session_id)
+    session.notes = notes 
+    db.session.commit()
+    return redirect(url_for('main.session_details', session_id=session_id))
+
 @main.route('/update_feeling_after/<int:session_id>', methods=['POST'])
 @login_required
 def update_feeling_after(session_id):
-    session = Session.query.get_or_404(session_id)
-    
-    if session.user_id != current_user.id:
-        flash("You do not have permission to update this session.", "danger")
-        return redirect(url_for('main.dashboard'))
-    
     feeling_after = request.form.get('feeling_after')
-    if feeling_after and feeling_after.isdigit():
-        feeling_after = int(feeling_after)
-        if 1 <= feeling_after <= 10:
-            session.feeling_after = feeling_after 
-            db.session.commit()
-            flash("Post-workout feeling updated successfully!", "success")
-        else:
-            flash("Feeling rating must be between 1 and 10.", "danger")
-            
+    session = Session.query.get_or_404(session_id)
+    session.feeling_after = feeling_after 
+    db.session.commit()
     return redirect(url_for('main.session_details', session_id=session_id))
 
 @main.route('/delete_exercise/<int:exercise_id>/<int:session_id>', methods=['POST'])
@@ -215,9 +211,9 @@ def exercise_details(exercise_id):
             )
             db.session.add(new_media)
             db.session.commit()
-            flash("Media uploaded successfully!", "success")
+            # flash("Media uploaded successfully!", "success")
         else:
-            flash('Failed to upload media to Supabase.', 'danger')
+            # flash('Failed to upload media to Supabase.', 'danger')
             print(response.text)
             print("Upload Error Code:", response.status_code)
         
@@ -594,109 +590,137 @@ def my_challenges():
 @main.route('/analytics', methods=['GET', 'POST'])
 @login_required
 def analytics():
-    form = AnalyticsFilterForm()
-
-    # Get the filter parameters
-    date_range = request.args.get('date_range', '30d')
-    exercise_type = request.args.get('exercise_type', 'all')
-    challenge_status = request.args.get('challenge_status', 'all')
-
-    # Calculate the date range
-    end_date = datetime.datetime.now()
-    if date_range == '7d':
-        start_date = end_date - datetime.timedelta(days=7)
-    elif date_range == '30d':
-        start_date = end_date - datetime.timedelta(days=30)
-    elif date_range == '90d':
-        start_date = end_date - datetime.timedelta(days=90)
-    else:
-        start_date = end_date - datetime.timedelta(days=365)
-
-    # Get user growth data
-    user_growth = db.session.query(
-        db.func.date(User.created_at).label('date'),
-        db.func.count(User.id).label('count')
-    ).filter(
-        User.created_at.between(start_date, end_date)
-    ).group_by(
-        db.func.date(User.created_at)
-    ).all()
-
-    # Get workout frequency data
-    workout_frequency = db.session.query(
-        db.func.strftime('%w', Session.date).label('day'),
-        db.func.count(Session.id).label('count')
-    ).filter(
-        Session.date.between(start_date, end_date),
-        Session.user_id == current_user.id
-    ).group_by(
-        db.func.strftime('%w', Session.date)
-    ).all()
-
-    # Get challenge completion data
-    challenge_completion = db.session.query(
-        UserChallenge.completed,
-        db.func.count(UserChallenge.id).label('count')
-    ).filter(
-        UserChallenge.user_id == current_user.id,
-        UserChallenge.created_at.between(start_date, end_date)
-    ).group_by(
-        UserChallenge.completed
-    ).all()
-
-    # Get exercise distribution data
-    exercise_distribution = db.session.query(
-        ExerciseLog.exercise_type,
-        db.func.count(ExerciseLog.id).label('count')
-    ).join(
-        Session
-    ).filter(
-        Session.user_id == current_user.id,
-        Session.date.between(start_date, end_date)
-    ).group_by(
-        ExerciseLog.exercise_type
-    ).all()
-
-    # Format the data for the charts
-    analytics_data = {
-        'user_growth': {
-            'labels': [str(date) for date, _ in user_growth],
-            'data': [count for _, count in user_growth]
-        },
-        'workout_frequency': {
-            'labels': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-            'data': [0] * 7  # Initialize with zeros
-        },
-        'challenge_completion': {
-            'labels': ['Completed', 'In Progress', 'Not Started'],
-            'data': [0, 0, 0]  # Initialize with zeros
-        },
-        'exercise_distribution': {
-            'labels': ['Strength', 'Cardio', 'Flexibility', 'HIIT'],
-            'data': [0, 0, 0, 0]  # Initialize with zeros
-        }
-    }
-
-    # Update the workout frequency data
-    for day, count in workout_frequency:
-        analytics_data['workout_frequency']['data'][int(day)] = count
-
-    # Update challenge completion data
-    for completed, count in challenge_completion:
-        if completed:
-            analytics_data['challenge_completion']['data'][0] = count
+    try:
+        form = AnalyticsFilterForm()
+        # Get the filter parameters
+        date_range = request.args.get('date_range', '30d')
+        exercise_type = request.args.get('exercise_type', 'all')
+        challenge_status = request.args.get('challenge_status', 'all')
+        
+        # Calculate the date range
+        end_date = datetime.datetime.now()
+        if date_range == '7d':
+            start_date = end_date - datetime.timedelta(days=7)
+        elif date_range == '30d':
+            start_date = end_date - datetime.timedelta(days=30)
+        elif date_range == '90d':
+            start_date = end_date - datetime.timedelta(days=90)
         else:
-            analytics_data['challenge_completion']['data'][1] = count
-
-    # Update exercise distribution data
-    for exercise_type, count in exercise_distribution:
-        if exercise_type == 'strength':
-            analytics_data['exercise_distribution']['data'][0] = count
-        elif exercise_type == 'cardio':
-            analytics_data['exercise_distribution']['data'][1] = count
-        elif exercise_type == 'flexibility':
-            analytics_data['exercise_distribution']['data'][2] = count
-        elif exercise_type == 'hiit':
-            analytics_data['exercise_distribution']['data'][3] = count
-
-    return render_template('analytics.html', form=form, analytics_data=analytics_data)
+            start_date = end_date - datetime.timedelta(days=365)
+            
+        # Get user growth data
+        user_growth = db.session.query(
+            db.func.date(User.created_at).label('date'),
+            db.func.count(User.id).label('count')
+        ).filter(
+            User.created_at.between(start_date, end_date)
+        ).group_by(
+            db.func.date(User.created_at)
+        ).all()
+        
+        # Get workout frequency data - FIX: Use extract instead of strftime
+        # This query extracts the day of week (0-6) from the date
+        # PostgreSQL uses EXTRACT(DOW FROM date), SQLite would use strftime
+        # We'll use a database-agnostic approach
+        
+        if db.engine.dialect.name == 'sqlite':
+            # SQLite approach
+            workout_frequency = db.session.query(
+                db.func.strftime('%w', Session.date).label('day'),
+                db.func.count(Session.id).label('count')
+            ).filter(
+                Session.date.between(start_date, end_date),
+                Session.user_id == current_user.id
+            ).group_by(
+                db.func.strftime('%w', Session.date)
+            ).all()
+        elif db.engine.dialect.name == 'postgresql':
+            # PostgreSQL approach
+            workout_frequency = db.session.query(
+                db.func.extract('dow', Session.date).label('day'),
+                db.func.count(Session.id).label('count')
+            ).filter(
+                Session.date.between(start_date, end_date),
+                Session.user_id == current_user.id
+            ).group_by(
+                db.func.extract('dow', Session.date)
+            ).all()
+        else:
+            # Fallback for other databases - using date_part or similar might work
+            # For simplicity, we'll initialize with empty data
+            workout_frequency = []
+            
+        # Get challenge completion data
+        challenge_completion = db.session.query(
+            UserChallenge.completed,
+            db.func.count(UserChallenge.id).label('count')
+        ).filter(
+            UserChallenge.user_id == current_user.id,
+            UserChallenge.created_at.between(start_date, end_date)
+        ).group_by(
+            UserChallenge.completed
+        ).all()
+        
+        # Get exercise distribution data
+        exercise_distribution = db.session.query(
+            ExerciseLog.exercise_type,
+            db.func.count(ExerciseLog.id).label('count')
+        ).join(
+            Session
+        ).filter(
+            Session.user_id == current_user.id,
+            Session.date.between(start_date, end_date)
+        ).group_by(
+            ExerciseLog.exercise_type
+        ).all()
+        
+        # Format the data for the charts
+        analytics_data = {
+            'user_growth': {
+                'labels': [str(date) for date, count in user_growth],
+                'data': [count for date, count in user_growth]
+            },
+            'workout_frequency': {
+                'labels': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                'data': [0] * 7  # Initialize with zeros
+            },
+            'challenge_completion': {
+                'labels': ['Completed', 'In Progress', 'Not Started'],
+                'data': [0, 0, 0]  # Initialize with zeros
+            },
+            'exercise_distribution': {
+                'labels': ['Strength', 'Cardio', 'Flexibility', 'HIIT'],
+                'data': [0, 0, 0, 0]  # Initialize with zeros
+            }
+        }
+        
+        # Update the workout frequency data
+        for day, count in workout_frequency:
+            day_index = int(day) if day is not None else 0
+            analytics_data['workout_frequency']['data'][day_index] = count
+            
+        # Update challenge completion data
+        for completed, count in challenge_completion:
+            if completed:
+                analytics_data['challenge_completion']['data'][0] = count
+            else:
+                analytics_data['challenge_completion']['data'][1] = count
+                
+        # Update exercise distribution data
+        for exercise_type, count in exercise_distribution:
+            if exercise_type == 'strength':
+                analytics_data['exercise_distribution']['data'][0] = count
+            elif exercise_type == 'cardio':
+                analytics_data['exercise_distribution']['data'][1] = count
+            elif exercise_type == 'flexibility':
+                analytics_data['exercise_distribution']['data'][2] = count
+            elif exercise_type == 'hiit':
+                analytics_data['exercise_distribution']['data'][3] = count
+                
+        return render_template('analytics.html', form=form, analytics_data=analytics_data)
+        
+    except Exception as e:
+        # Capture the error and pass it to the template
+        error_message = str(e)
+        print(f"Analytics error: {error_message}")  # Log the error
+        return render_template('analytics.html', form=form, error=error_message)

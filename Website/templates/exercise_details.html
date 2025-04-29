@@ -1,73 +1,362 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1>{{ exercise.exercise }}</h1>
-        <div>
-            <span class="badge bg-primary">{{ exercise.sets }} sets</span>
-            <span class="badge bg-secondary">{{ exercise.reps }} reps</span>
-            <span class="badge bg-info">{{ exercise.weight }} lbs</span>
-            <span class="badge bg-dark">RPE: {{ exercise.rpe }}</span>
-        </div>
-    </div>
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #000;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/img/bg-dark.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        min-height: 100vh;
+    }
+
+    /* Hide navbar and other navigation elements for this page */
+    .main-navbar, 
+    nav, 
+    .navbar,
+    header > nav,
+    .nav-container,
+    #mainNav {
+        display: none !important;
+    }
     
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3>Upload Media</h3>
-        </div>
-        <div class="card-body">
-            <form method="POST" enctype="multipart/form-data">
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    {{ form.media.label }}
-                    {{ form.media(class="form-control") }}
+    header {
+        display: none !important;
+    }
+    
+    /* Exercise page container */
+    .exercise-container {
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+    
+    /* Exercise title */
+    .exercise-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                    0 0 20px rgba(255, 255, 255, 0.3),
+                    0 0 30px rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    /* Exercise stats */
+    .stats-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .stat-badge {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: 1px solid rgba(25, 25, 65, 0.6);
+        border-radius: 50px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .badge-sets {
+        background-color: rgba(39, 55, 77, 0.9);
+    }
+    
+    .badge-reps {
+        background-color: rgba(22, 33, 62, 0.9);
+    }
+    
+    .badge-weight {
+        background-color: rgba(0, 31, 63, 0.9);
+    }
+    
+    .badge-rpe {
+        background-color: rgba(0, 20, 39, 0.9);
+    }
+    
+    /* Content panels */
+    .panel {
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .panel-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* File upload controls */
+    .upload-form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .upload-file-col {
+        flex: 1;
+        min-width: 250px;
+    }
+    
+    .upload-notes-col {
+        flex: 1;
+        min-width: 250px;
+    }
+    
+    .form-control {
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-control:focus {
+        background-color: rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Custom file input styling */
+    .custom-file-input {
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+    }
+    
+    .custom-file-input::file-selector-button {
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .custom-file-input::file-selector-button:hover {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Button styling */
+    .btn-action {
+        background-color: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 50px;
+        padding: 0.7rem 1.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-action:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    
+    /* Media gallery */
+    .media-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .media-card {
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .media-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .media-image {
+        width: 100%;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .media-video {
+        width: 100%;
+        aspect-ratio: 16/9;
+        background-color: #000;
+    }
+    
+    .media-card:hover .media-image,
+    .media-card:hover .media-video {
+        transform: scale(1.05);
+    }
+    
+    .media-body {
+        padding: 1.2rem;
+    }
+    
+    .media-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.2rem;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Delete button styling */
+    .btn-delete {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background-color: rgba(244, 67, 54, 0.7);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-delete:hover {
+        background-color: rgba(244, 67, 54, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Back button */
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-back i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .panel {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .panel:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="exercise-container">
+    <h1 class="exercise-title">{{ exercise.exercise }}</h1>
+    
+    <div class="stats-container">
+        <span class="stat-badge badge-sets">{{ exercise.sets }} sets</span>
+        <span class="stat-badge badge-reps">{{ exercise.reps }} reps</span>
+        <span class="stat-badge badge-weight">{{ exercise.weight }} lbs</span>
+        <span class="stat-badge badge-rpe">RPE: {{ exercise.rpe }}</span>
+    </div>
+   
+    <div class="panel">
+        <h2 class="panel-title">Upload Media</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="upload-form-row">
+                <div class="upload-file-col">
+                    {{ form.media.label(class="form-label") }}
+                    {{ form.media(class="form-control custom-file-input") }}
                 </div>
-                <div class="mb-3">
-                    {{ form.notes.label }}
+                <div class="upload-notes-col">
+                    {{ form.notes.label(class="form-label") }}
                     {{ form.notes(class="form-control") }}
                 </div>
-                <div class="mt-3">
-                    {{ form.submit(class="btn btn-primary") }}
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="mt-3">
+                {{ form.submit(class="btn btn-action") }}
+            </div>
+        </form>
     </div>
-    
-    <h2>Uploaded Media</h2>
-    {% if media_files %}
-        <div class="row">
-            {% for media in media_files %}
-                <div class="col-md-4 mb-3">
-                    <div class="card">
+   
+    <div class="panel">
+        <h2 class="panel-title">Uploaded Media</h2>
+        {% if media_files %}
+            <div class="media-gallery">
+                {% for media in media_files %}
+                    <div class="media-card">
                         {% if media.media_type == 'photo' %}
-                            <img src="{{ supabase_exercise_url(media.filename) }}" class="card-img-top" alt="Exercise photo">
+                            <img src="{{ supabase_exercise_url(media.filename) }}" class="media-image" alt="Exercise photo">
                         {% else %}
-                            <video controls class="card-img-top">
+                            <video controls class="media-video">
                                 <source src="{{ supabase_exercise_url(media.filename) }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                         {% endif %}
-                    </div>
-                        <div class="card-body">
-                            <p class="card-text">{{ media.notes }}</p>
-                            <p class="card-text"><small class="text-muted">Uploaded on {{ media.upload_date.strftime('%Y-%m-%d %H:%M') }}</small></p>
-                            <form action="{{ url_for('main.delete_media', media_id=media.id, exercise_id=exercise.id) }}" method="POST">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                        <div class="media-body">
+                            <p>{{ media.notes }}</p>
                         </div>
+                        <form action="{{ url_for('main.delete_media', media_id=media.id, exercise_id=exercise.id) }}" method="POST">
+                            <button type="submit" class="btn-delete">Delete</button>
+                        </form>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No media uploaded for this exercise yet.</p>
-    {% endif %}
-    
-    <div class="mt-3">
-        <a href="{{ url_for('main.session_details', session_id=exercise.session_id) }}" class="btn btn-secondary">Back to Session</a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No media uploaded for this exercise yet.</p>
+                <p class="text-muted">Upload photos or videos to track your form and progress.</p>
+            </div>
+        {% endif %}
     </div>
+   
+    <a href="{{ url_for('main.session_details', session_id=exercise.session_id) }}" class="btn btn-action btn-back">
+        <i class="bi bi-arrow-left"></i>Back to Session
+    </a>
 </div>
 {% endblock %}

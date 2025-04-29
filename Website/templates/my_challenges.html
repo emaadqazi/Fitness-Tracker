@@ -1,51 +1,295 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container">
-    <h1>My Challenges</h1>
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #000;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/img/bg-dark.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        min-height: 100vh;
+    }
     
+    /* Challenge title styling */
+    .challenge-title {
+        font-size: 3.1rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                     0 0 20px rgba(255, 255, 255, 0.3),
+                     0 0 30px rgba(255, 255, 255, 0.1);
+        margin-bottom: 1.5rem;
+        letter-spacing: 1px;
+        text-align: center;
+    }
+    
+    /* Container */
+    .challenge-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+    
+    /* Challenge cards */
+    .challenge-card {
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .challenge-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+    
+    .challenge-card.completed {
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+    
+    .challenge-card-header {
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .challenge-card-body {
+        padding: 1.5rem;
+    }
+    
+    .challenge-card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: white;
+    }
+    
+    .challenge-card-text {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Badge styling */
+    .challenge-badge {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        padding: 0.4rem 0.8rem;
+        font-weight: 500;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .badge-type {
+        background-color: rgba(13, 110, 253, 0.3);
+        border-color: rgba(13, 110, 253, 0.5);
+    }
+    
+    .badge-category {
+        background-color: rgba(108, 117, 125, 0.3);
+        border-color: rgba(108, 117, 125, 0.5);
+    }
+    
+    .badge-difficulty {
+        background-color: rgba(23, 162, 184, 0.3);
+        border-color: rgba(23, 162, 184, 0.5);
+    }
+    
+    .badge-completed {
+        background-color: rgba(40, 167, 69, 0.3);
+        border-color: rgba(40, 167, 69, 0.5);
+        float: right;
+    }
+    
+    /* Progress bar styling */
+    .progress {
+        height: 1.2rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d);
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: width 0.6s ease;
+        text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Challenge info */
+    .challenge-info {
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .challenge-info strong {
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    /* Button styling */
+    .btn-challenge {
+        background-color: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 50px;
+        padding: 0.7rem 1.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-challenge:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    
+    /* Empty state */
+    .empty-challenges {
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .challenge-card {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .challenge-card:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+    
+    .challenge-card:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+    
+    /* Achievement tier styling */
+    .achievement-bronze {
+        color: #cd7f32;
+        font-weight: 600;
+    }
+    
+    .achievement-silver {
+        color: #c0c0c0;
+        font-weight: 600;
+    }
+    
+    .achievement-gold {
+        color: #ffd700;
+        font-weight: 600;
+    }
+    
+    .achievement-platinum {
+        color: #e5e4e2;
+        font-weight: 600;
+        text-shadow: 0 0 5px rgba(229, 228, 226, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="challenge-container">
+    <h1 class="challenge-title">My Challenges</h1>
+   
     <div class="row mt-4">
-        {% for user_challenge in user_challenges %}
-        <div class="col-md-4 mb-4">
-            <div class="card {% if user_challenge.completed %}border-success{% endif %}">
-                <div class="card-header">
-                    <span class="badge bg-primary">{{ user_challenge.challenge.type|capitalize }}</span>
-                    <span class="badge bg-secondary">{{ user_challenge.challenge.category|capitalize }}</span>
-                    <span class="badge bg-info">{{ user_challenge.challenge.difficulty }}</span>
-                    {% if user_challenge.completed %}
-                    <span class="badge bg-success float-end">Completed</span>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ user_challenge.challenge.title }}</h5>
-                    <p class="card-text">{{ user_challenge.challenge.description }}</p>
-                    
-                    <div class="progress mb-3">
-                        {% set progress = (user_challenge.current_value / user_challenge.challenge.goal_value) * 100 %}
-                        {% if progress > 100 %}
-                            {% set progress = 100 %}
-                        {% endif %}
-                        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" 
-                             aria-valuenow="{{ user_challenge.current_value }}" aria-valuemin="0" 
-                             aria-valuemax="{{ user_challenge.challenge.goal_value }}">
-                            {{ user_challenge.current_value }}/{{ user_challenge.challenge.goal_value }}
-                        </div>
-                    </div>
-                    
-                    <p><strong>Progress:</strong> {{ user_challenge.current_value }}/{{ user_challenge.challenge.goal_value }} {{ user_challenge.challenge.metric }}</p>
-                    <p><strong>End Date:</strong> {{ user_challenge.challenge.end_date.strftime('%Y-%m-%d') }}</p>
-                    <p><strong>Achievement Tier:</strong> {{ user_challenge.achievement_tier }}</p>
-                    <p><strong>Points Earned:</strong> {{ user_challenge.earned_points }}</p>
-                    <p><strong>Badge:</strong> {{ user_challenge.challenge.badge_image }} {{ user_challenge.challenge.badge_name }}</p>
-                    
-                    {% if not user_challenge.completed %}
-                        <a href="{{ url_for('main.update_challenge', user_challenge_id=user_challenge.id) }}" 
-                           class="btn btn-primary">Update Progress</a>
-                    {% endif %}
-                </div>
+        {% if user_challenges|length == 0 %}
+        <div class="col-12">
+            <div class="empty-challenges">
+                <p class="mb-0">You haven't joined any challenges yet.</p>
+                <a href="{{ url_for('main.challenges') }}" class="btn btn-challenge mt-3">Browse Challenges</a>
             </div>
         </div>
-        {% endfor %}
+        {% else %}
+            {% for user_challenge in user_challenges %}
+            <div class="col-md-4 mb-4">
+                <div class="challenge-card {% if user_challenge.completed %}completed{% endif %}">
+                    <div class="challenge-card-header">
+                        <span class="challenge-badge badge-type">{{ user_challenge.challenge.type|capitalize }}</span>
+                        <span class="challenge-badge badge-category">{{ user_challenge.challenge.category|capitalize }}</span>
+                        <span class="challenge-badge badge-difficulty">{{ user_challenge.challenge.difficulty }}</span>
+                        {% if user_challenge.completed %}
+                        <span class="challenge-badge badge-completed">Completed</span>
+                        {% endif %}
+                    </div>
+                    <div class="challenge-card-body">
+                        <h5 class="challenge-card-title">{{ user_challenge.challenge.title }}</h5>
+                        <p class="challenge-card-text">{{ user_challenge.challenge.description }}</p>
+                       
+                        <div class="progress">
+                            {% set progress = (user_challenge.current_value / user_challenge.challenge.goal_value) * 100 %}
+                            {% if progress > 100 %}
+                                {% set progress = 100 %}
+                            {% endif %}
+                            <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;"
+                                 aria-valuenow="{{ user_challenge.current_value }}" aria-valuemin="0"
+                                 aria-valuemax="{{ user_challenge.challenge.goal_value }}">
+                                {{ user_challenge.current_value }}/{{ user_challenge.challenge.goal_value }}
+                            </div>
+                        </div>
+                       
+                        <p class="challenge-info"><strong>Progress:</strong> {{ user_challenge.current_value }}/{{ user_challenge.challenge.goal_value }} {{ user_challenge.challenge.metric }}</p>
+                        <p class="challenge-info"><strong>End Date:</strong> {{ user_challenge.challenge.end_date.strftime('%m/%d/%Y') }}</p>
+                        
+                        <p class="challenge-info">
+                            <strong>Achievement:</strong> 
+                            <span class="{% if user_challenge.achievement_tier == 'Bronze' %}achievement-bronze{% elif user_challenge.achievement_tier == 'Silver' %}achievement-silver{% elif user_challenge.achievement_tier == 'Gold' %}achievement-gold{% elif user_challenge.achievement_tier == 'Platinum' %}achievement-platinum{% endif %}">
+                                {{ user_challenge.achievement_tier }}
+                            </span>
+                        </p>
+                        
+                        <p class="challenge-info"><strong>Points:</strong> {{ user_challenge.earned_points }}</p>
+                        <p class="challenge-info"><strong>Badge:</strong> {{ user_challenge.challenge.badge_image }} {{ user_challenge.challenge.badge_name }}</p>
+                       
+                        {% if not user_challenge.completed %}
+                            <div class="text-center mt-4">
+                                <a href="{{ url_for('main.update_challenge', user_challenge_id=user_challenge.id) }}"
+                                   class="btn btn-challenge">
+                                   <i class="bi bi-arrow-up-circle me-2"></i>Update Progress
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <div class="text-center mt-3 mb-5">
+        <a href="{{ url_for('main.challenges') }}" class="btn btn-challenge">
+            <i class="bi bi-trophy me-2"></i>All Challenges
+        </a>
     </div>
 </div>
 {% endblock %}

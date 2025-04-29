@@ -2,9 +2,34 @@
 
 {% block additional_styles %}
 <style>
-    /* Glowing title styling consistent with other pages */
-    .user-greeting {
-        font-size: 3.1rem;
+    body {
+        background-color: #000;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/img/bg-dark.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        min-height: 100vh;
+    }
+
+    /* Hide navbar and other navigation elements for this page */
+    .main-navbar, 
+    nav, 
+    .navbar,
+    header > nav,
+    .nav-container,
+    #mainNav {
+        display: none !important;
+    }
+    
+    header {
+        display: none !important;
+    }
+
+    /* Glowing title styling */
+    .session-title {
+        font-size: 2.8rem;
         font-weight: 700;
         color: white;
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
@@ -15,35 +40,35 @@
         text-align: center;
     }
 
-    /* Consistent container styling */
-    .session-container {
+    /* Session container */
+    .workout-container {
         max-width: 1200px;
-        margin: 0 auto;
-        padding: 1.5rem;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
     }
 
-    /* Session header styling */
+    /* Session header */
     .session-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
-        color: white;
     }
 
-    /* Content box styling consistent with other pages */
-    .content-box {
-        background-color: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(5px);
+    /* Content panels */
+    .panel {
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         padding: 1.5rem;
         margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .content-box::before {
+    .panel::before {
         content: "";
         position: absolute;
         top: 0;
@@ -53,81 +78,90 @@
         background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
     }
 
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
     /* Form styling */
     .form-control {
-        background-color: rgba(0, 0, 0, 0.3);
+        background-color: rgba(0, 0, 0, 0.5);
         border: 1px solid rgba(255, 255, 255, 0.2);
         color: white;
         border-radius: 8px;
         padding: 0.8rem 1rem;
-        font-family: 'Roboto Mono', monospace;
-        letter-spacing: 0.5px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
     }
 
     .form-control::placeholder {
         color: rgba(255, 255, 255, 0.5);
     }
 
-    .form-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 600;
+    .form-control:focus {
+        background-color: rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
     }
 
-    /* Exercise table styling */
+    .form-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Table styling */
     .table {
         color: white;
         background-color: transparent;
+        margin-bottom: 0;
     }
 
-    .table thead {
-        color: white;
+    .table thead th {
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 600;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .table tbody tr {
+        transition: background-color 0.3s ease;
+        background-color: rgba(0, 0, 0, 0.5);
     }
 
     .table-striped tbody tr:nth-of-type(odd) {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: rgba(0, 0, 0, 0.4);
     }
 
     .table-striped tbody tr:nth-of-type(even) {
-        background-color: rgba(0, 0, 0, 0.1);
+        background-color: rgba(0, 0, 0, 0.5);
     }
 
     .table-striped tbody tr:hover {
         background-color: rgba(255, 255, 255, 0.1);
-        transition: background-color 0.3s ease;
+    }
+
+    .table td {
+        border-color: rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        vertical-align: middle;
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .clickable-row {
         cursor: pointer;
-        transition: all 0.3s ease;
     }
 
-    /* Modal styling */
-    .modal-content {
-        background-color: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    .modal-header {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .modal-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .modal-header .btn-close {
-        filter: invert(1) grayscale(100%) brightness(200%);
-    }
-
-    /* Buttons */
+    /* Button styling */
     .btn-action {
         background-color: rgba(0, 0, 0, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.3);
         color: white;
         border-radius: 50px;
-        padding: 0.7rem 2rem;
+        padding: 0.7rem 1.8rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -136,58 +170,198 @@
     }
 
     .btn-action:hover {
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(255, 255, 255, 0.15);
         border-color: rgba(255, 255, 255, 0.5);
-        transform: translateY(-3px);
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
-                    0 0 40px rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
         color: white;
     }
 
-    /* Notes card styling */
-    .notes-card {
-        background-color: rgba(0, 0, 0, 0.3);
+    .btn-danger {
+        background-color: rgba(220, 53, 69, 0.7);
+        border-color: transparent;
+    }
+
+    .btn-danger:hover {
+        background-color: rgba(220, 53, 69, 0.9);
+    }
+
+    /* Notes styling */
+    .notes-wrapper {
+        padding: 0.5rem 0;
+    }
+    
+    .quick-notes-form {
+        margin-top: 0.5rem;
+    }
+    
+    .quick-notes-form .input-group {
+        background-color: transparent;
+    }
+    
+    .quick-notes-form .btn {
+        padding: 0.5rem 1rem;
+        height: 100%;
+    }
+    
+    .note-card {
+        background-color: rgba(0, 0, 0, 0.4);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        color: white;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        height: 100%;
     }
 
-    .notes-card .card-header {
+    .note-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .note-header {
         background-color: rgba(0, 0, 0, 0.2);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 10px 10px 0 0;
     }
 
-    .notes-card .card-footer {
+    .note-body {
+        padding: 1.5rem;
+    }
+
+    .note-footer {
         background-color: rgba(0, 0, 0, 0.2);
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.8rem 1rem;
+        border-radius: 0 0 10px 10px;
+    }
+
+    /* Modal styling */
+    .modal-content {
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+    }
+
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* Feeling indicators */
+    .feeling-indicator {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        margin-right: 1rem;
+    }
+
+    .feeling-before {
+        background-color: rgba(0, 123, 255, 0.2);
+        border: 1px solid rgba(0, 123, 255, 0.4);
+    }
+
+    .feeling-after {
+        background-color: rgba(40, 167, 69, 0.2);
+        border: 1px solid rgba(40, 167, 69, 0.4);
+    }
+
+    /* Tags */
+    .tag {
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        margin-right: 0.5rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .panel:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+
+    .panel:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+
+    .panel:nth-child(4) {
+        animation-delay: 0.3s;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="session-container">
+<div class="workout-container">
     <div class="session-header">
-        <h1 class="user-greeting">{{ session.title }}</h1>
-        <small class="text-white">{{ session.date.strftime('%Y-%m-%d %H:%M') }}</small>
+        <h1 class="session-title">{{ session.title }}</h1>
+        <small class="text-white opacity-75">{{ session.date.strftime('%I:%M %p - %m/%d/%Y') }}</small>
     </div>
     
-    <div class="content-box mb-4">
+    <div class="panel">
         <div class="row">
             <div class="col-md-6">
-                <p class="text-white">Feeling before: {{ session.feeling_before }}/10</p>
+                <span class="feeling-indicator feeling-before">Feeling before: {{ session.feeling_before }}/10</span>
                 {% if session.feeling_after %}
-                    <p class="text-white">Feeling after: {{ session.feeling_after }}/10</p>
+                    <span class="feeling-indicator feeling-after">Feeling after: {{ session.feeling_after }}/10</span>
                 {% endif %}
             </div>
-            {% if session.notes %}
             <div class="col-md-6">
-                <p class="text-white">Session Notes: {{ session.notes }}</p>
+                <div class="notes-wrapper">
+                    <h5 class="mb-2">Notes:</h5>
+                    {% if session.notes %}
+                        <div class="notes-content">
+                            <p class="text-white opacity-75 mb-2">{{ session.notes }}</p>
+                            <button type="button" class="btn btn-sm btn-outline-light" id="editNotesBtn">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </button>
+                        </div>
+                        <form method="POST" action="{{ url_for('main.update_session_notes', session_id=session.id) }}" class="edit-notes-form" style="display: none;">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="notes" value="{{ session.notes }}" required>
+                                <button type="submit" class="btn btn-action">Save</button>
+                                <button type="button" class="btn btn-outline-secondary" id="cancelEditBtn">Cancel</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('main.update_session_notes', session_id=session.id) }}" class="quick-notes-form">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="notes" placeholder="Enter notes here..." required>
+                                <button type="submit" class="btn btn-action">Save</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
-            {% endif %}
         </div>
     </div>
     
-    <div class="content-box mb-4">
-        <h3 class="text-white mb-4">Log Exercise</h3>
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="mb-0">Log Exercise</h3>
+        </div>
         <form method="POST">
             {{ form.hidden_tag() }}
             <div class="row">
@@ -224,11 +398,13 @@
         </form>
     </div>
     
-    <div class="content-box mb-4">
-        <h2 class="text-white mb-4">Exercises</h2>
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="mb-0">Exercises</h3>
+        </div>
         {% if exercises %}
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped" id="exercisesTable">
                     <thead>
                         <tr>
                             <th>Exercise</th>
@@ -248,27 +424,27 @@
                             <td>{{ exercise.weight }}</td>
                             <td>{{ exercise.rpe }}</td>
                             <td onclick="event.stopPropagation()">
-                                <form action="{{ url_for('main.delete_exercise', exercise_id=exercise.id, session_id=session.id) }}" method="POST">
+                                <form action="{{ url_for('main.delete_exercise', exercise_id=exercise.id, session_id=session.id) }}" method="POST" class="d-inline">
                                     <button type="submit" class="btn btn-danger btn-sm">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
-                            <td>
+                            </td>
                         </tr>
-                        {% endfor %}
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         {% else %}
-            <p class="text-white text-center">No exercises logged for this session yet.</p>
+            <p class="text-center text-white opacity-75">No exercises logged for this session yet.</p>
         {% endif %}
     </div>
 
-    <div class="content-box">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="text-white mb-0">Session Notes</h3>
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="mb-0">Session Notes</h3>
             <button class="btn btn-action" data-bs-toggle="modal" data-bs-target="#addNoteModal">
-                <i class="bi bi-plus-lg"></i> Add Note
+                <i class="bi bi-plus-lg me-2"></i>Add Note
             </button>
         </div>
 
@@ -276,11 +452,11 @@
             <div class="row">
                 {% for note in session.linked_notes %}
                 <div class="col-md-6 mb-3">
-                    <div class="card h-100 notes-card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 text-white">{{ note.title }}</h5>
+                    <div class="note-card">
+                        <div class="note-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ note.title }}</h5>
                             <div>
-                                <a href="{{ url_for('main.edit_note', note_id=note.id) }}" class="btn btn-sm btn-outline-light">
+                                <a href="{{ url_for('main.edit_note', note_id=note.id) }}" class="btn btn-sm btn-outline-light me-1">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <a href="{{ url_for('main.delete_note', note_id=note.id) }}" 
@@ -290,33 +466,35 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <p class="card-text text-white">{{ note.content }}</p>
+                        <div class="note-body">
+                            <p>{{ note.content }}</p>
                             {% if note.tags %}
                             <div class="mt-2">
                                 {% for tag in note.tags.split(',') %}
-                                <span class="badge bg-secondary">{{ tag.strip() }}</span>
+                                <span class="tag">{{ tag.strip() }}</span>
                                 {% endfor %}
                             </div>
                             {% endif %}
                         </div>
-                        <div class="card-footer text-muted">
-                            <small class="text-white">Created: {{ note.created_at.strftime('%Y-%m-%d') }}</small>
+                        <div class="note-footer">
+                            <small class="opacity-75">Created: {{ note.created_at.strftime('%Y-%m-%d') }}</small>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-white text-center">No notes linked to this workout session yet.</p>
+            <p class="text-center text-white opacity-75">No notes linked to this workout session yet.</p>
         {% endif %}
     </div>
     
-    <div class="mt-3 d-flex justify-content-between">
-        <a href="{{ url_for('main.dashboard') }}" class="btn btn-action">Back to Dashboard</a>
+    <div class="d-flex justify-content-between mt-4 mb-5">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-action">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
         
         <button type="button" class="btn btn-action" data-bs-toggle="modal" data-bs-target="#updateFeelingModal">
-            Update Post-Workout Feeling
+            <i class="bi bi-emoji-smile me-2"></i>Update Post-Workout Feeling
         </button>
     </div>
 </div>
@@ -326,17 +504,22 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-white" id="updateFeelingModalLabel">Update Post-Workout Feeling</h5>
+                <h5 class="modal-title" id="updateFeelingModalLabel">Update Post-Workout Feeling</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form action="{{ url_for('main.update_feeling_after', session_id=session.id) }}" method="POST">
                     <div class="form-group">
-                        <label for="feeling_after" class="form-label text-white">How do you feel after this workout? (1-10)</label>
-                        <input type="number" class="form-control" id="feeling_after" name="feeling_after" min="1" max="10" required>
+                        <label for="feeling_after" class="form-label">How do you feel after this workout? (1-10)</label>
+                        <div class="feeling-buttons d-flex justify-content-between flex-wrap my-3">
+                            {% for i in range(11) %}
+                            <button type="button" class="btn btn-feeling rounded-circle" data-value="{{ i }}">{{ i }}</button>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" id="feeling_after" name="feeling_after" value="" required>
                     </div>
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-action">Save</button>
+                    <div class="mt-3 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-action save-feeling" disabled>Save</button>
                     </div>
                 </form>
             </div>
@@ -344,27 +527,27 @@
     </div>
 </div>
 
-<!-- Modal for adding a note from the session page -->
+<!-- Modal for adding a note -->
 <div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-white" id="addNoteModalLabel">Add Note to This Session</h5>
+                <h5 class="modal-title" id="addNoteModalLabel">Add Note to This Session</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" action="{{ url_for('main.create_note') }}">
                 <input type="hidden" name="session_id" value="{{ session.id }}">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="noteTitle" class="form-label text-white">Title</label>
-<input type="text" class="form-control" id="noteTitle" name="title" required>
+                        <label for="noteTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="noteTitle" name="title" required>
                     </div>
                     <div class="mb-3">
-                        <label for="noteContent" class="form-label text-white">Content</label>
+                        <label for="noteContent" class="form-label">Content</label>
                         <textarea class="form-control" id="noteContent" name="content" rows="6" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="noteTags" class="form-label text-white">Tags (comma separated)</label>
+                        <label for="noteTags" class="form-label">Tags (comma separated)</label>
                         <input type="text" class="form-control" id="noteTags" name="tags" placeholder="workout, diet, progress">
                     </div>
                 </div>
@@ -380,13 +563,72 @@
 {% block additional_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Add click event to table rows
       const clickableRows = document.querySelectorAll('.clickable-row');
       clickableRows.forEach(row => {
         row.addEventListener('click', function() {
           window.location.href = row.dataset.href;
         });
-        // Add hover effect to indicate clickability
-        row.style.cursor = 'pointer';
+      });
+      
+      // Add animated entrance to panels
+      const panels = document.querySelectorAll('.panel');
+      panels.forEach((panel, index) => {
+        panel.style.opacity = '0';
+        panel.style.animation = `fadeIn 0.5s ease forwards ${index * 0.1}s`;
+      });
+      
+      // Notes editing functionality
+      const editNotesBtn = document.getElementById('editNotesBtn');
+      const cancelEditBtn = document.getElementById('cancelEditBtn');
+      
+      if (editNotesBtn) {
+        editNotesBtn.addEventListener('click', function() {
+          document.querySelector('.notes-content').style.display = 'none';
+          document.querySelector('.edit-notes-form').style.display = 'block';
+        });
+      }
+      
+      if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function() {
+          document.querySelector('.notes-content').style.display = 'block';
+          document.querySelector('.edit-notes-form').style.display = 'none';
+        });
+      }
+      
+      // Post-workout feeling buttons functionality
+      const feelingButtons = document.querySelectorAll('.btn-feeling');
+      const feelingInput = document.getElementById('feeling_after');
+      const saveButton = document.querySelector('.save-feeling');
+      
+      feelingButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons
+          feelingButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          // Update hidden input value
+          feelingInput.value = this.getAttribute('data-value');
+          
+          // Enable save button
+          saveButton.disabled = false;
+        });
+      });
+      
+      // Override table styles after the DOM is loaded
+      const tableRows = document.querySelectorAll('#exercisesTable tbody tr');
+      tableRows.forEach((row, index) => {
+        // Force background colors for rows
+        row.style.backgroundColor = index % 2 === 0 ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.5)';
+        
+        // Force cell colors
+        const cells = row.querySelectorAll('td');
+        cells.forEach(cell => {
+          cell.style.backgroundColor = 'transparent';
+          cell.style.color = 'white';
+        });
       });
     });
 </script>

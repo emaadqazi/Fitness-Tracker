@@ -1,40 +1,211 @@
 {% extends "base.html" %}
 
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #000;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/img/bg-dark.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        min-height: 100vh;
+    }
+    
+    /* Title styling */
+    .analytics-title {
+        font-size: 3.1rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                     0 0 20px rgba(255, 255, 255, 0.3),
+                     0 0 30px rgba(255, 255, 255, 0.1);
+        margin-bottom: 1.5rem;
+        letter-spacing: 1px;
+        text-align: center;
+    }
+    
+    /* Container */
+    .analytics-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+    
+    /* Filter panel */
+    .filter-panel {
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Chart panels */
+    .chart-panel {
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        height: 100%;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .chart-header {
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .chart-header h5 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .chart-body {
+        padding: 1.5rem;
+        height: 300px;
+    }
+    
+    /* Form styling */
+    .form-control, .form-select {
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control::placeholder, .form-select::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Button styling */
+    .btn-filter {
+        background-color: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 50px;
+        padding: 0.7rem 1.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-filter:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .chart-panel {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .chart-panel:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+    
+    .chart-panel:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+    
+    .chart-panel:nth-child(4) {
+        animation-delay: 0.3s;
+    }
+    
+    /* Error state */
+    .error-message {
+        background-color: rgba(255, 99, 132, 0.1);
+        border: 1px solid rgba(255, 99, 132, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: #ff6b6b;
+    }
+    
+    .chart-placeholder {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h1>Analytics Dashboard</h1>
+<div class="analytics-container">
+    <h1 class="analytics-title">Analytics Dashboard</h1>
     
     <!-- Filter Form -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-4">
-                    {{ form.date_range.label(class="form-label") }}
-                    {{ form.date_range(class="form-select") }}
-                </div>
-                <div class="col-md-4">
-                    {{ form.exercise_type.label(class="form-label") }}
-                    {{ form.exercise_type(class="form-select") }}
-                </div>
-                <div class="col-md-4">
-                    {{ form.challenge_status.label(class="form-label") }}
-                    {{ form.challenge_status(class="form-select") }}
-                </div>
-                <div class="col-12">
-                    {{ form.submit(class="btn btn-primary") }}
-                </div>
-            </form>
-        </div>
+    <div class="filter-panel">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                {{ form.date_range.label(class="form-label") }}
+                {{ form.date_range(class="form-select") }}
+            </div>
+            <div class="col-md-4">
+                {{ form.exercise_type.label(class="form-label") }}
+                {{ form.exercise_type(class="form-select") }}
+            </div>
+            <div class="col-md-4">
+                {{ form.challenge_status.label(class="form-label") }}
+                {{ form.challenge_status(class="form-select") }}
+            </div>
+            <div class="col-12 mt-3">
+                {{ form.submit(class="btn btn-filter") }}
+            </div>
+        </form>
     </div>
     
-    <div class="row mt-4">
+    {% if error %}
+    <div class="error-message">
+        <p><strong>Error loading analytics:</strong> {{ error }}</p>
+        <p>Please try a different date range or contact support if the issue persists.</p>
+    </div>
+    {% endif %}
+    
+    <div class="row">
         <!-- User Growth Chart -->
         <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
+            <div class="chart-panel">
+                <div class="chart-header">
                     <h5>User Growth Over Time</h5>
                 </div>
-                <div class="card-body">
+                <div class="chart-body">
                     <canvas id="userGrowthChart"></canvas>
                 </div>
             </div>
@@ -42,11 +213,11 @@
 
         <!-- Workout Frequency Chart -->
         <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
+            <div class="chart-panel">
+                <div class="chart-header">
                     <h5>Weekly Workout Frequency</h5>
                 </div>
-                <div class="card-body">
+                <div class="chart-body">
                     <canvas id="workoutFrequencyChart"></canvas>
                 </div>
             </div>
@@ -54,11 +225,11 @@
 
         <!-- Challenge Completion Rate -->
         <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
+            <div class="chart-panel">
+                <div class="chart-header">
                     <h5>Challenge Completion Rate</h5>
                 </div>
-                <div class="card-body">
+                <div class="chart-body">
                     <canvas id="challengeCompletionChart"></canvas>
                 </div>
             </div>
@@ -66,11 +237,11 @@
 
         <!-- Exercise Distribution -->
         <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
+            <div class="chart-panel">
+                <div class="chart-header">
                     <h5>Exercise Distribution</h5>
                 </div>
-                <div class="card-body">
+                <div class="chart-body">
                     <canvas id="exerciseDistributionChart"></canvas>
                 </div>
             </div>
@@ -82,123 +253,239 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Get the analytics data from the backend
-const analyticsData = {{ analytics_data|tojson|safe }};
+// Check if analytics data exists
+const hasData = {% if analytics_data is defined and analytics_data %}true{% else %}false{% endif %};
 
-// Common chart options
+// Set up default empty data structure
+let analyticsData = {
+    user_growth: { labels: [], data: [] },
+    workout_frequency: { labels: [], data: [] },
+    challenge_completion: { labels: ['Completed', 'In Progress', 'Abandoned'], data: [0, 0, 0] },
+    exercise_distribution: { labels: ['Strength', 'Cardio', 'Flexibility', 'Other'], data: [0, 0, 0, 0] }
+};
+
+// If we have data, use it
+if (hasData) {
+    analyticsData = {{ analytics_data|tojson|safe }};
+}
+
+// Common chart options - dark theme
 const commonOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            position: 'bottom'
+            position: 'bottom',
+            labels: {
+                color: 'rgba(255, 255, 255, 0.8)',
+                font: {
+                    family: 'Inter, sans-serif'
+                }
+            }
+        },
+        tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: 'rgba(255, 255, 255, 1)',
+            bodyColor: 'rgba(255, 255, 255, 0.8)',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1
+        }
+    },
+    scales: {
+        x: {
+            grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+            }
+        },
+        y: {
+            grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+            }
         }
     }
 };
 
-// User Growth Chart
-const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
-new Chart(userGrowthCtx, {
-    type: 'line',
-    data: {
-        labels: analyticsData.user_growth.labels,
-        datasets: [{
-            label: 'New Users',
-            data: analyticsData.user_growth.data,
-            borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: 'rgba(75, 192, 192, 0.1)',
-            tension: 0.1,
-            fill: true
-        }]
+// Chart color schemes
+const colorSchemes = {
+    line: {
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)'
     },
-    options: {
-        ...commonOptions,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
+    bar: {
+        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+        borderColor: 'rgb(54, 162, 235)'
+    },
+    doughnut: {
+        backgroundColor: [
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(255, 99, 132, 0.7)'
+        ],
+        borderColor: [
+            'rgb(75, 192, 192)',
+            'rgb(255, 206, 86)',
+            'rgb(255, 99, 132)'
+        ]
+    },
+    pie: {
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)'
+        ],
+        borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 206, 86)',
+            'rgb(75, 192, 192)'
+        ]
+    }
+};
+
+// Display placeholder message if no data is available
+function showPlaceholder(canvasId, message = "No data available for selected filters") {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    
+    // Clear any existing chart
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Display placeholder text
+    ctx.font = '14px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+}
+
+// Initialize charts
+function initializeCharts() {
+    // User Growth Chart
+    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    if (analyticsData.user_growth.labels.length > 0) {
+        new Chart(userGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: analyticsData.user_growth.labels,
+                datasets: [{
+                    label: 'New Users',
+                    data: analyticsData.user_growth.data,
+                    borderColor: colorSchemes.line.borderColor,
+                    backgroundColor: colorSchemes.line.backgroundColor,
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    ...commonOptions.scales,
+                    y: {
+                        ...commonOptions.scales.y,
+                        beginAtZero: true,
+                        ticks: {
+                            ...commonOptions.scales.y.ticks,
+                            stepSize: 1
+                        }
+                    }
                 }
             }
-        }
+        });
+    } else {
+        showPlaceholder('userGrowthChart');
     }
-});
 
-// Workout Frequency Chart
-const workoutFrequencyCtx = document.getElementById('workoutFrequencyChart').getContext('2d');
-new Chart(workoutFrequencyCtx, {
-    type: 'bar',
-    data: {
-        labels: analyticsData.workout_frequency.labels,
-        datasets: [{
-            label: 'Workouts',
-            data: analyticsData.workout_frequency.data,
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-            borderColor: 'rgb(54, 162, 235)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        ...commonOptions,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
+    // Workout Frequency Chart
+    const workoutFrequencyCtx = document.getElementById('workoutFrequencyChart').getContext('2d');
+    if (analyticsData.workout_frequency.labels.length > 0) {
+        new Chart(workoutFrequencyCtx, {
+            type: 'bar',
+            data: {
+                labels: analyticsData.workout_frequency.labels,
+                datasets: [{
+                    label: 'Workouts',
+                    data: analyticsData.workout_frequency.data,
+                    backgroundColor: colorSchemes.bar.backgroundColor,
+                    borderColor: colorSchemes.bar.borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    ...commonOptions.scales,
+                    y: {
+                        ...commonOptions.scales.y,
+                        beginAtZero: true,
+                        ticks: {
+                            ...commonOptions.scales.y.ticks,
+                            stepSize: 1
+                        }
+                    }
                 }
             }
-        }
+        });
+    } else {
+        showPlaceholder('workoutFrequencyChart');
     }
-});
 
-// Challenge Completion Rate Chart
-const challengeCompletionCtx = document.getElementById('challengeCompletionChart').getContext('2d');
-new Chart(challengeCompletionCtx, {
-    type: 'doughnut',
-    data: {
-        labels: analyticsData.challenge_completion.labels,
-        datasets: [{
-            data: analyticsData.challenge_completion.data,
-            backgroundColor: [
-                'rgba(75, 192, 192, 0.7)',
-                'rgba(255, 206, 86, 0.7)',
-                'rgba(255, 99, 132, 0.7)'
-            ],
-            borderColor: [
-                'rgb(75, 192, 192)',
-                'rgb(255, 206, 86)',
-                'rgb(255, 99, 132)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: commonOptions
-});
+    // Challenge Completion Rate Chart
+    const challengeCompletionCtx = document.getElementById('challengeCompletionChart').getContext('2d');
+    if (analyticsData.challenge_completion.data.some(val => val > 0)) {
+        new Chart(challengeCompletionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: analyticsData.challenge_completion.labels,
+                datasets: [{
+                    data: analyticsData.challenge_completion.data,
+                    backgroundColor: colorSchemes.doughnut.backgroundColor,
+                    borderColor: colorSchemes.doughnut.borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...commonOptions,
+                // Remove scales for doughnut chart
+                scales: {}
+            }
+        });
+    } else {
+        showPlaceholder('challengeCompletionChart');
+    }
 
-// Exercise Distribution Chart
-const exerciseDistributionCtx = document.getElementById('exerciseDistributionChart').getContext('2d');
-new Chart(exerciseDistributionCtx, {
-    type: 'pie',
-    data: {
-        labels: analyticsData.exercise_distribution.labels,
-        datasets: [{
-            data: analyticsData.exercise_distribution.data,
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.7)',
-                'rgba(54, 162, 235, 0.7)',
-                'rgba(255, 206, 86, 0.7)',
-                'rgba(75, 192, 192, 0.7)'
-            ],
-            borderColor: [
-                'rgb(255, 99, 132)',
-                'rgb(54, 162, 235)',
-                'rgb(255, 206, 86)',
-                'rgb(75, 192, 192)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: commonOptions
-});
+    // Exercise Distribution Chart
+    const exerciseDistributionCtx = document.getElementById('exerciseDistributionChart').getContext('2d');
+    if (analyticsData.exercise_distribution.data.some(val => val > 0)) {
+        new Chart(exerciseDistributionCtx, {
+            type: 'pie',
+            data: {
+                labels: analyticsData.exercise_distribution.labels,
+                datasets: [{
+                    data: analyticsData.exercise_distribution.data,
+                    backgroundColor: colorSchemes.pie.backgroundColor,
+                    borderColor: colorSchemes.pie.borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...commonOptions,
+                // Remove scales for pie chart
+                scales: {}
+            }
+        });
+    } else {
+        showPlaceholder('exerciseDistributionChart');
+    }
+}
+
+// Initialize charts when the document is ready
+document.addEventListener('DOMContentLoaded', initializeCharts);
 </script>
 {% endblock %}
