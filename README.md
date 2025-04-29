@@ -40,7 +40,8 @@ The Create Session page allows users to quickly log a new workout with a custom 
 The Editing Session page offers users a detailed view of a specific workout session, with options to update their initial and post-workout mood ratings, edit session notes, and log individual exercises. The form allows users to input exercise name, sets, reps, weight, and RPE (Rate of Perceived Exertion), which are displayed in a structured table below for easy tracking. This layout promotes quick edits and ongoing progress monitoring, making the session page both functional and user-friendly.
 
 ### **Uploading media to specific exercises within a session**
-![Exercise Media Upload](screenshots/)
+![Exercise Media Upload](screenshots/NEWUploadingMediaExercise.png)
+The Exercise Media Upload page allows users to attach visual content to individual exercises, enhancing workout logs with photos or videos. Key exercise metrics—sets, reps, weight, and RPE—are displayed at the top for quick reference. Users can upload media alongside notes for context, and all uploaded content is neatly previewed with options to manage or delete files. This feature supports visual tracking of progress and form, making workouts more interactive and personalized.
 
 ### **Logging your weight**
 ![Weight Log UI](screenshots/NEWWeightLogPage.png)
@@ -50,7 +51,7 @@ The Weight Log page provides users with a simple and efficient way to track thei
 ![Creating Session UI](screenshots/NEWUploadingMediaExercise.png)
 The Exercise Media Upload page allows users to attach visual content to individual exercises, enhancing workout logs with photos or videos. Key exercise metrics—sets, reps, weight, and RPE—are displayed at the top for quick reference. Users can upload media alongside notes for context, and all uploaded content is neatly previewed with options to manage or delete files. This feature supports visual tracking of progress and form, making workouts more interactive and personalized.
 
-### **Updating how you feel post worokuts**
+### **Updating how you feel post workout**
 ![Updating post-workout feelings](screenshots/NEWUpdatingPostWorkout.png)
 This modal allows users to rate how they felt after completing a workout session on a scale from 1 to 10. It promotes reflection and helps track trends in energy, motivation, or recovery over time, adding a personalized and mindful touch to workout logging.
 
@@ -67,7 +68,7 @@ The Notes page allows users to document reflections, thoughts, or motivational m
 The Fitness Challenges page encourages goal-setting by allowing users to create and track personalized challenges, such as hitting the gym multiple times a week. Each challenge can be customized with unique goals, durations, badges, and progress tracking. Filter options and motivational tags like “Daily” or “Consistency” keep users focused and engaged throughout their fitness journey.
 
 ### **Creating Challenges Page**
-![Creating a challenge](screenshots/NEWCreateChallenge.png)
+![Creating a challenge](screenshots/NEWCreatingChallenge.png)
 The Create Challenge page empowers users to build personalized fitness goals tailored to their routines and preferences. Users can define challenge details such as type, category, metric, goal value, difficulty level, and duration. Custom achievement badges and point values gamify the experience, making it engaging and rewarding. This flexibility supports a wide range of challenge types—from daily strength tasks to long-term endurance goals—enhancing motivation and accountability.
 
 ### **Viewing your Challenges**
