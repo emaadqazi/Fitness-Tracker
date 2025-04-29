@@ -78,6 +78,14 @@ The Challenge Progress View lets users track their advancement toward active fit
 ![Updating Progress on Challenge](screenshots/NEWUpdatingProgressOnChallenges.png)
 The Update Challenge Progress page lets users manually track their advancement toward a goal by inputting completed days or units. A progress bar visually reflects how close they are to completion, alongside contextual info like the goal target and deadline. This simple interface supports habit-building and helps users stay accountable to their ongoing challenges.
 
+### **Analytics Page**
+![Viewing statistics on workouts](screenshots/NEWAnalyticsPage.png)
+The Analytics Dashboard offers a visual summary of user activity and engagement trends across the platform. Users can filter data by date range, exercise type, and challenge status to reveal key insights such as weekly workout frequency, challenge completion rates, and exercise distribution by category. These dynamic charts provide a high-level overview of performance habits and progress patterns, helping users stay informed and motivated on their fitness journey.
+
+### **Settings Page**
+![Customizing User Settings](screenshots/NEWSettings.png)
+The User Settings page gives users full control over their account preferences, including profile details, password updates, email notification options, and measurement units. Users can enable reminders, switch between metric and imperial systems, export their workout data, or delete their account entirely. This centralized hub ensures a customizable and secure experience tailored to individual needs.
+
 ---
 
 ## ⚡ Technologies Used
