@@ -13,8 +13,6 @@ I built this project in my second year of university to further develop my progr
 
 While this is a full-stack, web-based application, my primary focus was on backend development and data management. I integrated Supabase as the backend service, enabling secure cloud-based storage for both user data and media uploads. This structure ensures that all content is efficiently organized and scalable for future enhancements.
 
----
-A
 ## Here are some screenshots of the application
 
 ### **Home Page**
@@ -66,43 +64,59 @@ The Weight Log page provides users with a simple and efficient way to track thei
 
 ## Installation and Setup 
 1. Clone the repository
-```bash
-git clone https://github.com/emaadq/Fitness-Tracker.git
-```
+
+    ```bash
+    git clone https://github.com/emaadq/Fitness-Tracker.git
+    ```
 
 2. Go to the repository
-``` bash
-cd Fitness-Tracker
-```
+
+    ```bash
+    cd Fitness-Tracker
+    ```
 
 3. Create and activate a virtual environment
-``` bash
-python -m venv venv
-```
-If you are on windows, use:
-``` bash
-venv\Scripts\Activate
-```
-If you are MacOS, use:
-``` bash
-source venv\bin\activate
-```
+
+    ```bash
+    python -m venv venv
+    ```
+
+    If you are on Windows, use:
+
+    ```bash
+    venv\Scripts\activate
+    ```
+
+    If you are on MacOS, use:
+
+    ```bash
+    source venv/bin/activate
+    ```
 
 4. Install relevant dependencies
-``` bash
-pip install -r requirements.txt
-```
+
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 5. Run the application
-``` bash
-py main.py
-```
-or
-``` bash
-flask run
-```
 
-6. Access the application at 'http://localhost:5000'
+    Using Python:
+
+    ```bash
+    py main.py
+    ```
+
+    Or using Flask CLI:
+
+    ```bash
+    flask run
+    ```
+
+6. Access the application
+
+    Visit [http://localhost:5000](http://localhost:5000) in your browser.
+
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
