@@ -4,7 +4,7 @@
 
 {% block additional_styles %}
 <style>
-    /* Glowing title styling to match landing page */
+    /* Glowing title styling to match challenges page */
     .user-greeting {
         font-size: 3.1rem;
         font-weight: 700;
@@ -12,7 +12,7 @@
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
                      0 0 20px rgba(255, 255, 255, 0.3),
                      0 0 30px rgba(255, 255, 255, 0.1);
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
         letter-spacing: 1px;
         text-align: center;
     }
@@ -55,7 +55,7 @@
     }
     
     .weight-date {
-        width: 150px;
+        width: 120px;
         font-family: 'Roboto Mono', monospace;
     }
     
@@ -160,9 +160,7 @@
 
 {% block content %}
 <div class="centered-container">
-    <div class="welcome-message">
-        <h1 class="user-greeting">Log Your Weight</h1>
-    </div>
+    <h1 class="user-greeting" style="font-size: 3.1rem; font-weight: 700; color: white; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1); margin-bottom: 1.5rem; letter-spacing: 1px; text-align: center;">Log Your Weight</h1>
     
     <div class="content-box">
         <form method="POST" action="{{ url_for('main.weightlog') }}" class="weight-form">
@@ -180,7 +178,7 @@
             <input type="hidden" id="weight-unit" name="unit" value="lbs">
             <input type="hidden" id="converted-weight" name="converted_weight" value="">
             
-            <button type="submit" class="btn btn-log-weight">Log Weight</button>
+            <button type="submit" class="btn btn-log-weight">LOG WEIGHT</button>
         </form>
     </div>
     
@@ -192,20 +190,23 @@
                 {% for log in logs %}
                 <li class="weight-log-item">
                     <div class="weight-date">{{ log.date.strftime('%Y-%m-%d') }}</div>
+                    
+                    {% if loop.index < logs|length %}
+                        {% set prev_weight = logs[loop.index].weight %}
+                        {% if log.weight > prev_weight %}
+                            <div class="trend-indicator trend-up"><i class="bi bi-arrow-up"></i> {{ "%.1f"|format(log.weight - prev_weight) }}</div>
+                        {% elif log.weight < prev_weight %}
+                            <div class="trend-indicator trend-down"><i class="bi bi-arrow-down"></i> {{ "%.1f"|format(prev_weight - log.weight) }}</div>
+                        {% else %}
+                            <div class="trend-indicator trend-same"><i class="bi bi-dash"></i> 0.0</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="trend-indicator"></div>
+                    {% endif %}
+                    
                     <div class="weight-value">
                         <span class="weight-number" data-weight="{{ log.weight }}">{{ "%.1f"|format(log.weight) }}</span>
                         <span class="weight-unit-display">lbs</span>
-                        
-                        {% if loop.index < logs|length %}
-                            {% set prev_weight = logs[loop.index].weight %}
-                            {% if log.weight > prev_weight %}
-                                <span class="trend-indicator trend-up"><i class="bi bi-arrow-up"></i> {{ "%.1f"|format(log.weight - prev_weight) }}</span>
-                            {% elif log.weight < prev_weight %}
-                                <span class="trend-indicator trend-down"><i class="bi bi-arrow-down"></i> {{ "%.1f"|format(prev_weight - log.weight) }}</span>
-                            {% else %}
-                                <span class="trend-indicator trend-same"><i class="bi bi-dash"></i> 0.0</span>
-                            {% endif %}
-                        {% endif %}
                     </div>
                 </li>
                 {% endfor %}
