@@ -11,22 +11,26 @@
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
                      0 0 20px rgba(255, 255, 255, 0.3),
                      0 0 30px rgba(255, 255, 255, 0.1);
-        margin-bottom: 0.5rem;
+        margin-bottom: 2rem;
         letter-spacing: 1px;
         text-align: center;
     }
 
-    /* Notes page specific styling */
-    .notes-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
+    .title-container {
+        text-align: center;
+        margin-bottom: 1.5rem;
     }
 
+    /* Notes page specific styling */
     .notes-container {
         max-width: 1200px;
         margin: 0 auto;
+    }
+    
+    .new-note-btn-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 1.5rem;
     }
 
     .notes-sidebar {
@@ -138,10 +142,13 @@
 
 {% block content %}
 <div class="notes-container">
-    <div class="notes-header">
-        <h1 class="user-greeting">My Notes</h1>
+    <div class="title-container">
+        <h1 class="user-greeting" style="font-size: 3.1rem; font-weight: 700; color: white; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1); margin-bottom: 1.5rem; letter-spacing: 1px; text-align: center;">My Notes</h1>
+    </div>
+    
+    <div class="new-note-btn-container">
         <button class="btn btn-action" data-bs-toggle="modal" data-bs-target="#createNoteModal">
-            <i class="bi bi-plus-lg"></i> New Note
+            <i class="bi bi-plus-lg"></i> NEW NOTE
         </button>
     </div>
 
