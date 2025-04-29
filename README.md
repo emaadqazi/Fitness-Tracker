@@ -39,15 +39,20 @@ The Create Session page allows users to quickly log a new workout with a custom 
 ![Exercise Editing UI](screenshots/NEWEditingSessions.png)
 The Editing Session page offers users a detailed view of a specific workout session, with options to update their initial and post-workout mood ratings, edit session notes, and log individual exercises. The form allows users to input exercise name, sets, reps, weight, and RPE (Rate of Perceived Exertion), which are displayed in a structured table below for easy tracking. This layout promotes quick edits and ongoing progress monitoring, making the session page both functional and user-friendly.
 
+### **Uploading media to specific exercises within a session**
+![Exercise Media Upload](screenshots/)
+
 ### **Logging your weight**
 ![Weight Log UI](screenshots/NEWWeightLogPage.png)
 The Weight Log page provides users with a simple and efficient way to track their weight over time. Users can quickly input their weight in pounds or kilograms, while previous entries are neatly displayed below, including color-coded indicators for changes. This clean, organized layout helps users easily monitor their progress and stay motivated toward their fitness goals.
 
 ### **Uploading media specific to an exercise**
-![Creating Session UI](screenshots/UploadingExerciseSpecificVideos.png)
+![Creating Session UI](screenshots/NEWUploadingMediaExercise.png)
+The Exercise Media Upload page allows users to attach visual content to individual exercises, enhancing workout logs with photos or videos. Key exercise metrics—sets, reps, weight, and RPE—are displayed at the top for quick reference. Users can upload media alongside notes for context, and all uploaded content is neatly previewed with options to manage or delete files. This feature supports visual tracking of progress and form, making workouts more interactive and personalized.
 
 ### **Updating how you feel post worokuts**
-![Updating post-workout feelings](screenshots/PostSessionUpdate.png)
+![Updating post-workout feelings](screenshots/NEWUpdatingPostWorkout.png)
+This modal allows users to rate how they felt after completing a workout session on a scale from 1 to 10. It promotes reflection and helps track trends in energy, motivation, or recovery over time, adding a personalized and mindful touch to workout logging.
 
 ### **Deleting media within exercises**
 ![Deleting exercise media](screenshots/ExerciseMediaDeleteFunction.png)
