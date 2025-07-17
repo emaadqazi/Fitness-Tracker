@@ -13,6 +13,72 @@ I built this project in my second year of university to further develop my progr
 
 While this is a full-stack, web-based application, my primary focus was on backend development and data management. I integrated Supabase as the backend service, enabling secure cloud-based storage for both user data and media uploads. This structure ensures that all content is efficiently organized and scalable for future enhancements.
 
+## ⚡ Technologies Used
+- **Flask** (Backend Framework)
+- **Flask-WTF** (Form Handling and Validation)
+- **Flask-Login** (User Authentication and Session Management)
+- **Supabase** (PostgreSQL Database and Cloud Storage)
+- **SQLAlchemy** (ORM for Database Interactions)
+- **Bootstrap 5** (Frontend Styling)
+- **Jinja2** (HTML Templating Engine)
+- **Chart.js** (Data Visualization)
+- **Render** (Deployment Platform)
+
+## Installation and Setup 
+1. Clone the repository
+
+    ```bash
+    git clone https://github.com/emaadq/Fitness-Tracker.git
+    ```
+
+2. Go to the repository
+
+    ```bash
+    cd Fitness-Tracker
+    ```
+
+3. Create and activate a virtual environment
+
+    ```bash
+    python -m venv venv
+    ```
+
+    If you are on Windows, use:
+
+    ```bash
+    venv\Scripts\activate
+    ```
+
+    If you are on MacOS, use:
+
+    ```bash
+    source venv/bin/activate
+    ```
+
+4. Install relevant dependencies
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5. Run the application
+
+    Using Python:
+
+    ```bash
+    py main.py
+    ```
+
+    Or using Flask CLI:
+
+    ```bash
+    flask run
+    ```
+
+6. Access the application
+
+    Visit [http://localhost:5000](http://localhost:5000) in your browser.
+
 ## Here are some screenshots of the application
 
 ### **Home Page**
@@ -88,72 +154,6 @@ The Analytics Dashboard offers a visual summary of user activity and engagement 
 The User Settings page gives users full control over their account preferences, including profile details, password updates, email notification options, and measurement units. Users can enable reminders, switch between metric and imperial systems, export their workout data, or delete their account entirely. This centralized hub ensures a customizable and secure experience tailored to individual needs.
 
 ---
-
-## ⚡ Technologies Used
-- **Flask** (Backend Framework)
-- **Flask-WTF** (Form Handling and Validation)
-- **Flask-Login** (User Authentication and Session Management)
-- **Supabase** (PostgreSQL Database and Cloud Storage)
-- **SQLAlchemy** (ORM for Database Interactions)
-- **Bootstrap 5** (Frontend Styling)
-- **Jinja2** (HTML Templating Engine)
-- **Chart.js** (Data Visualization)
-- **Render** (Deployment Platform)
-
-## Installation and Setup 
-1. Clone the repository
-
-    ```bash
-    git clone https://github.com/emaadq/Fitness-Tracker.git
-    ```
-
-2. Go to the repository
-
-    ```bash
-    cd Fitness-Tracker
-    ```
-
-3. Create and activate a virtual environment
-
-    ```bash
-    python -m venv venv
-    ```
-
-    If you are on Windows, use:
-
-    ```bash
-    venv\Scripts\activate
-    ```
-
-    If you are on MacOS, use:
-
-    ```bash
-    source venv/bin/activate
-    ```
-
-4. Install relevant dependencies
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-5. Run the application
-
-    Using Python:
-
-    ```bash
-    py main.py
-    ```
-
-    Or using Flask CLI:
-
-    ```bash
-    flask run
-    ```
-
-6. Access the application
-
-    Visit [http://localhost:5000](http://localhost:5000) in your browser.
 
 
 ## License
