@@ -10,7 +10,8 @@ from flask import Flask
 def client():
     app = create_app({
         'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        'SECRET_KEY': 'test-secret-key'
     })
     
     # Mock the render_template function to avoid template loading

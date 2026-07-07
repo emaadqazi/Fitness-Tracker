@@ -337,7 +337,7 @@ def progressphotos():
             new_photo = Photo(user_id=current_user.id, filename=filename)
             db.session.add(new_photo)
             db.session.commit()
-            # flash('Photo uploaded successfully!', 'success')
+            flash('Photo uploaded successfully!', 'success')
         else:
             flash('Failed to upload photot to Supabase.', 'danger')
             print(response.text)
@@ -421,7 +421,7 @@ def create_note():
     
     db.session.add(new_note)
     db.session.commit()
-    # flash("Note created successfully!", "success")
+    flash("Note created successfully!", "success")
     return redirect(url_for('main.notes'))
 
 @main.route('/edit_note/<int:note_id>', methods=['GET', 'POST'])
@@ -457,7 +457,7 @@ def delete_note(note_id):
     
     db.session.delete(note)
     db.session.commit()
-    # flash("Note deleted successfully!", "success")
+    flash("Note deleted successfully!", "success")
     return redirect(url_for('main.notes'))
 
 
