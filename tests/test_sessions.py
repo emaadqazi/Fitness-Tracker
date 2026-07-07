@@ -63,6 +63,7 @@ def test_log_exercise(client, auth):
     
     data = {
         'exercise': 'Bench Press',
+        'exercise_type': 'strength',
         'sets': 3,
         'reps': 10,
         'weight': 225,

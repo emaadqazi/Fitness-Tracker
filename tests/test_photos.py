@@ -1,5 +1,6 @@
 import pytest
 import os
+from unittest.mock import patch, Mock
 from tests.conftest import get_csrf_token
 
 def test_upload_progress_photo(client, auth):
@@ -26,10 +27,12 @@ def test_upload_progress_photo(client, auth):
         if csrf_token:
             data['csrf_token'] = csrf_token
             
-        response = client.post('/progressphotos', 
-                               data=data, 
-                               follow_redirects=True, 
-                               content_type='multipart/form-data')
+        with patch('Website.views.requests.put') as mock_put:
+            mock_put.return_value = Mock(status_code=201)
+            response = client.post('/progressphotos', 
+                                   data=data, 
+                                   follow_redirects=True, 
+                                   content_type='multipart/form-data')
     
     assert response.status_code == 200
     assert b'Photo uploaded successfully' in response.data
